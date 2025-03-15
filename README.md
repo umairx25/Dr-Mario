@@ -4,9 +4,9 @@
 
 This project is an implementation of the **Dr. Mario** game in **MIPS assembly**, designed to run on the **Saturn** or **MARS** simulators. The game is a **falling block puzzle game** where the objective is to eliminate all viruses by strategically placing medical capsules.
 
-Dr. Mario was originally released by **Nintendo** in 1990. The game mechanics involve rotating and moving capsules to match colors with existing viruses and other capsules. When four or more of the same color align **horizontally or vertically**, they disappear, creating chain reactions that further clear the playing field.
+Dr. Mario was originally released by **Nintendo** in 1990. The game mechanics involve rotating and moving capsules to match colors with existing viruses and other capsules. When four or more of the same color align **horizontally or vertically**, they disappear, creating chain reactions that further clear the playing field. You can check out an implementation of the game here: https://www.retrogames.onl/2017/05/dr-mario-nes.html 
 
-In this project, we will implement the game step by step, following a set of milestones. Each milestone represents a crucial part of the game, from drawing the scene to implementing advanced game features.
+In this project, we aim to develop a functional implementation of the game, with full functionality and features from drawing the scene to implementing advanced game features.
 
 ---
 
@@ -65,13 +65,14 @@ In this project, we will implement the game step by step, following a set of mil
 ## Setup Instructions
 
 ### Running in **Saturn**
-1. Open `DrMario.asm` in Saturn.  
+1. Open `DrMario.asm` in Saturn (download link: https://github.com/1whatleytay/saturn).  
 2. Press `Ctrl + T` (or `Cmd + T` on macOS) to open the terminal.  
 3. Navigate to the **Bitmap** tab and configure the display.  
 4. Click **Run** to start the game!  
 
 ### Running in **MARS**
-1. Open `DrMario.asm` in MARS.  
+1. Open `DrMario.asm` in MARS (https:
+//courses.missouristate.edu/kenvollmar/mars/).  
 2. Navigate to **Tools → Bitmap Display**, configure, and click **Connect to MIPS**.  
 3. Navigate to **Tools → Keyboard and Display MMIO Simulator**, click **Connect to MIPS**.  
 4. Assemble and run the game.  
@@ -108,11 +109,9 @@ In this project, we will implement the game step by step, following a set of mil
 ---
 
 ## Contributors  
-- **[Your Name]**  
-- **[Partner's Name] (if applicable)**  
+- **Umair Arham**  
+- **Sameer Shahed**  
 - **Course:** CSC258 – Computer Organization  
 - **Instructor:** Steve Engels & Mario Badr  
 
 ---
-
-This project is a great way to practice **low-level programming** while building a fun, nostalgic game. Happy coding! 🎮
