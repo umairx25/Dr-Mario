@@ -26,6 +26,44 @@ ADDR_DSPL:
 ADDR_KBRD:
     .word 0xffff0000
 
+# Colors
+COLOR_BLACK:    .word 0x000000
+COLOR_RED:      .word 0xff0000
+COLOR_BLUE:     .word 0x0000ff
+COLOR_YELLOW:   .word 0xffff00
+COLOR_GREEN:    .word 0x00ff00 # For border/UI
+COLOR_WHITE:    .word 0xffffff # For text/UI
+
+# Game board dimensions (in units)
+BOARD_WIDTH:    .word 8       # Width of playable area
+BOARD_HEIGHT:   .word 16      # Height of playable area
+BOARD_X_OFFSET: .word 4       # X offset from left edge of display
+BOARD_Y_OFFSET: .word 4       # Y offset from top edge of display
+
+# Display dimensions (in units)
+DISPLAY_WIDTH:  .word 32      # 256/8 = 32 units wide
+DISPLAY_HEIGHT: .word 32      # 256/8 = 32 units high
+
+# Capsule info
+NUM_COLORS:     .word 3       # Number of different colors (red, blue, yellow)
+
+# Movement deltas
+MOVE_LEFT:      .word -1
+MOVE_RIGHT:     .word 1
+MOVE_DOWN:      .word 1
+
+# Game state flags
+GAME_ACTIVE:    .word 1       # 1 = game is active, 0 = game over
+GAME_PAUSED:    .word 0       # 1 = paused, 0 = not paused
+
+# Key codes
+KEY_W:          .word 0x77    # rotate
+KEY_A:          .word 0x61    # move left
+KEY_S:          .word 0x73    # move down
+KEY_D:          .word 0x64    # move right
+KEY_Q:          .word 0x71    # quit
+KEY_P:          .word 0x70    # pause
+
 ##############################################################################
 # Mutable Data
 ##############################################################################
