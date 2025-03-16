@@ -6,7 +6,7 @@
 #
 # We assert that the code submitted here is entirely our own 
 # creation, and will indicate otherwise when it is not.
-#
+#hello
 ######################## Bitmap Display Configuration ########################
 # - Unit width in pixels:       TODO
 # - Unit height in pixels:      TODO
