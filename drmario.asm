@@ -57,10 +57,11 @@ GAME_ACTIVE:    .word 1       # 1 = game is active, 0 = game over
 GAME_PAUSED:    .word 0       # 1 = paused, 0 = not paused
 
 # Key codes
-KEY_W:          .word 0x77    # rotate
 KEY_A:          .word 0x61    # move left
 KEY_S:          .word 0x73    # move down
 KEY_D:          .word 0x64    # move right
+KEY_X:          .word 0x78    # rotate right
+KEY_Z:          .word 0x7A    # rotate left
 KEY_Q:          .word 0x71    # quit
 KEY_P:          .word 0x70    # pause
 
@@ -77,6 +78,18 @@ KEY_P:          .word 0x70    # pause
     # Run the game.
 main:
     # Initialize the game
+    # Seed random number generator using system time
+    li $v0, 30
+    syscall
+    move $a0, $0
+    move $a1, $v0
+    li $v0, 40
+    syscall
+
+    jal clear_board         # Clear board array
+    jal draw_borders        # Draw game borders
+    jal init_viruses        # Place viruses randomly
+    jal spawn_capsule       # Create first capsule
 
 game_loop:
     # 1a. Check if key has been pressed
