@@ -68,7 +68,7 @@ KEY_P:          .word 0x70    # pause
 ##############################################################################
 # Mutable Data
 ##############################################################################
-capsule_x:      .word 41                # x coordinate of current capsule
+capsule_x:      .word 42                # x coordinate of current capsule
 capsule_y:      .word 1                # y coordinate of current capsule
 capsule_orient: .word 0                  # 0 = horizontal, 1 = vertical
 
@@ -135,7 +135,7 @@ re_initialize:
 
 loop_right:
     beq $t6, 26, initialize_bottom
-    sw  $t7, 64($t4)
+    sw  $t7, 68($t4)
     addi $t4, $t4, 128
     addi $t6, $t6, 1 
     j loop_right
@@ -146,7 +146,7 @@ initialize_bottom:
     li $t6, 0 
 
 loop_bottom:
-    beq $t6, 13, initialize_top
+    beq $t6, 14, initialize_top
     sw  $t7, 0($t4)
     addi $t4, $t4, 4
     addi $t6, $t6, 1 
@@ -159,10 +159,10 @@ initialize_top:
     li $t2, 0
     
 loop_top:
-    beq $t6, 13, draw_lid
+    beq $t6, 14, draw_lid
     
     # Check if $t6 is greater than x (e.g., 1) and less than y (e.g., 3)
-    li $t3, 3               # Set x = 3 (greater than 3)
+    li $t3, 4               # Set x = 3 (greater than 3)
     li $t5, 9              # Set y = 9 (less than 9)
     sgt $t2, $t6, $t3       # Set $t2 to 1 if $t6 > 3
     slt $t1, $t6, $t5       # Set $t5 to 1 if $t6 < 9
@@ -183,10 +183,10 @@ skip_iteration:
 
 draw_lid:
     move $t4, $t0
-    sw $t7, 412($t4)
-    sw $t7, 436($t4)
-    sw $t7, 284($t4)
-    sw $t7, 308($t4)   
+    sw $t7, 416($t4) # bottom left
+    sw $t7, 436($t4) # bottom right
+    sw $t7, 288($t4) # top left
+    sw $t7, 308($t4) # top right 
     jr $ra  # saves the line address to register 31
 
 #####################################
@@ -292,4 +292,3 @@ respond_to_Z:
     j key_check
 respond_to_P:
     j key_check
-  
