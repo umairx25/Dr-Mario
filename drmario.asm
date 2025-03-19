@@ -89,20 +89,8 @@ gravity_speed:  .word 20
 
     # Run the game.
 main:
-    # Initialize the game
-    # Seed random number generator using system time
-    # li $v0, 30
-    # syscall
-    # move $a0, $0
-    # move $a1, $v0
-    # li $v0, 40
-    # syscall
 
-    # jal clear_board         # Clear board array
-    # jal draw_borders        # Draw game borders
-    # jal init_viruses        # Place viruses randomly
-    # jal spawn_capsule       # Create first capsule
-    
+
 
 game_loop:
     # 1a. Check if key has been pressed
@@ -114,9 +102,59 @@ game_loop:
 
     # 5. Go back to Step 1
     j game_loop
-
-
+    
 
 exit:
     li $v0, 10             # Terminate the program gracefully
     syscall
+    
+
+#####################################
+# Keyboard Input and Control Handlers
+#####################################
+key_check:
+  	li 		$v0, 32
+	li 		$a0, 1
+	syscall
+
+    lw $t0, ADDR_KBRD               # $t0 = base address for keyboard
+    lw $t8, 0($t0)                  # Load first word from keyboard
+    beq $t8, 1, keyboard_input      # If first word 1, key is pressed
+    b main
+    
+keyboard_input:                     # A key is pressed
+    lw $a0, 4($t0)                  # Load second word from keyboard
+
+    lw $t3, KEY_Q
+    beq $t2, $t3, respond_to_Q
+
+    lw $t3, KEY_P
+    beq $t2, $t3, respond_to_P
+
+    lw $t3, KEY_A
+    beq $t2, $t3, respond_to_A
+
+    lw $t3, KEY_S
+    beq $t2, $t3, respond_to_S
+
+    lw $t3, KEY_D
+    beq $t2, $t3, respond_to_D
+
+    lw $t3, KEY_X
+    beq $t2, $t3, respond_to_X
+
+    lw $t3, KEY_Z
+    beq $t2, $t3, respond_to_Z
+
+    b main
+    
+respond_to_Q:
+  j exit   
+
+respond_to_A:  
+respond_to_S:
+respond_to_D:
+respond_to_X:
+respond_to_Z:
+respond_to_P:
+  
