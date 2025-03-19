@@ -68,8 +68,8 @@ KEY_P:          .word 0x70    # pause
 ##############################################################################
 # Mutable Data
 ##############################################################################
-capsule_x:      .word 1                # x coordinate of current capsule
-capsule_y:      .word 41                # y coordinate of current capsule
+capsule_x:      .word 41                # x coordinate of current capsule
+capsule_y:      .word 1                # y coordinate of current capsule
 capsule_orient: .word 0                  # 0 = horizontal, 1 = vertical
 
 capsule_color1: .word 0                # left (or top) color index (0=red,1=blue,2=yellow)
@@ -106,16 +106,13 @@ game_loop:
     j game_loop
     
 
-# exit:
-    # li $v0, 10             # Terminate the program gracefully
-    # syscall
+exit:
+    li $v0, 10             # Terminate the program gracefully
+    syscall
 
 #function to draw the starting screen
 draw_bottle:
-    lW $t5, COLOUR_GREY     # $t5 = gray
-    lw $t9, COLOR_RED        # $t7 = red
-    lw $t1, COLOR_BLUE        # $t5 = blue
-     
+    lw $t7, COLOUR_GREY     # $t7 = grey
 
     lw $t0, ADDR_DSPL       # $t0 = base address for display
     
@@ -126,7 +123,7 @@ intitialize:
     
 loop_left:
     beq $t6, 26, re_initialize     # exits if it reaches the leftmost of the last row
-    sw  $t5, 16($t4)             # draw the gray color on the left most of each line
+    sw  $t7, 16($t4)             # draw the gray color on the left most of each line
     addi $t4, $t4, 128          # increment t4 by 128
     addi $t6, $t6, 1 
     j loop_left
@@ -138,7 +135,7 @@ re_initialize:
 
 loop_right:
     beq $t6, 26, initialize_bottom
-    sw  $t5, 64($t4)
+    sw  $t7, 64($t4)
     addi $t4, $t4, 128
     addi $t6, $t6, 1 
     j loop_right
@@ -150,7 +147,7 @@ initialize_bottom:
 
 loop_bottom:
     beq $t6, 13, initialize_top
-    sw  $t5, 0($t4)
+    sw  $t7, 0($t4)
     addi $t4, $t4, 4
     addi $t6, $t6, 1 
     j loop_bottom
@@ -166,15 +163,15 @@ loop_top:
     
     # Check if $t6 is greater than x (e.g., 1) and less than y (e.g., 3)
     li $t3, 3               # Set x = 3 (greater than 3)
-    li $t7, 9               # Set y = 9 (less than 9)
+    li $t5, 9              # Set y = 9 (less than 9)
     sgt $t2, $t6, $t3       # Set $t2 to 1 if $t6 > 3
-    slt $t8, $t6, $t7       # Set $t5 to 1 if $t6 < 9
-    and $t2, $t2, $t8       # $t2 is 1 only if $t2 and $t8 are 1
+    slt $t1, $t6, $t5       # Set $t5 to 1 if $t6 < 9
+    and $t2, $t2, $t1       # $t2 is 1 only if $t2 and $t1 are 1
 
     beq $t2, 1, skip_iteration  # If $t2 == 1, skip this iteration
 
     #else:
-    sw  $t5, 0($t4)    
+    sw  $t7, 0($t4)    
     addi $t4, $t4, 4
     addi $t6, $t6, 1 
     j loop_top
@@ -186,10 +183,10 @@ skip_iteration:
 
 draw_lid:
     move $t4, $t0
-    sw $t5, 412($t4)
-    sw $t5, 436($t4)
-    sw $t5, 284($t4)
-    sw $t5, 308($t4)   
+    sw $t7, 412($t4)
+    sw $t7, 436($t4)
+    sw $t7, 284($t4)
+    sw $t7, 308($t4)   
     jr $ra  # saves the line address to register 31
 
 #####################################
@@ -200,24 +197,23 @@ draw_start_capsule:
     lw $t0, ADDR_DSPL   
 
     # Compute the memory address from (x, y)
-    lw $a2, capsule_x       # X-coordinate
-    lw $a3, capsule_y       # Y-coordinate
+    # Note that this calculates the position of the left/top capsule
+    lw $a2, capsule_x       # X-coordinate (column) 41
+    lw $a3, capsule_y       # Y-coordinate (row) 1
 
-    mul $t2, $a2, 128       # y * 128 (row offset)
-    mul $t3, $a3, 4         # x * 4 (column offset)
+    mul $t2, $a2, 4         # x (column) * 4 (column offset)
+    mul $t3, $a3, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
 
     # Load capsule colors
-    lw $t1, COLOR_BLUE      # Left/top capsule color
+    lw $t8, COLOR_BLUE      # Left/top capsule color
     lw $t9, COLOR_RED       # Right/bottom capsule color
 
     # Store colors at the computed memory address
-    sw $t1, 0($t4)          # Store blue at (x, y)
+    sw $t8, 0($t4)          # Store blue at (x, y)
     sw $t9, 4($t4)          # Store red at (x+1, y)
-
     jr $ra                  # Return
-
 #####################################
 # Keyboard Input and Control Handlers
 #####################################
@@ -227,14 +223,13 @@ key_check:
 	syscall
 
     lw $t0, ADDR_KBRD               # $t0 = base address for keyboard
-    lw $t8, 0($t0)                  # Load first word from keyboard
-    beq $t8, 1, keyboard_input      # If first word 1, key is pressed
+    lw $t1, 0($t0)                  # Load first word from keyboard (key state)
+    beq $t1, 1, keyboard_input      # If first word 1, key is pressed
     jr $ra
     j key_check
     
 keyboard_input:                     # A key is pressed
-    # lw $a0, 4($t0)                  # Load second word from keyboard
-    lw $t2, 4($t0)                  # Load second word from keyboard into $t2
+    lw $t2, 4($t0)                  # Load second word from keyboard into $t2 (actual key pressed)
 
     lw $t3, KEY_Q
     beq $t2, $t3, respond_to_Q
@@ -260,35 +255,41 @@ keyboard_input:                     # A key is pressed
     j game_loop
     
 respond_to_Q:
-    li $v0, 10  # Exit system call
-    syscall   
+    # li $v0, 10  # Exit system call
+    # syscall   
+    j exit
 
-# respond_to_A:
-    # lw $t6, capsule_x       # Load current x position
-    # addi $a2, $a2, -1       # Move left (x = x - 1)
-    # # move $a2, $t6       # Store updated x position
-
-    # # Clear previous position (optional)
-    # # jal clear_capsule       
-
-    # # Redraw at new position
-    # # lw $a2, capsule_x
-    # # lw $a3, capsule_y
-    # # jal draw_start_capsule
-    # j key_check
-respond_to_A: #moves down right now
-    lw $t6, capsule_x       # Load current x position
-    addi $t6, $t6, 1       # Move left (x = x - 1)
+respond_to_A: # Move left
+    lw $t6, capsule_x       # Load current x position (column)
+    addi $t6, $t6, -1       # Move left (x = x - 1)
     sw $t6, capsule_x       # Store updated x position
     
     # Then redraw capsule at new position
     jal draw_start_capsule
     j game_loop
 
-    # jr $ra                  # Return
 respond_to_S:
+    lw $t6, capsule_y       # Load current x position (column)
+    addi $t6, $t6, 1        # Move right (x = x + 1)
+    sw $t6, capsule_y       # Store updated x position
+    
+    # Then redraw capsule at new position
+    jal draw_start_capsule
+    j game_loop
+    
 respond_to_D:
+    lw $t6, capsule_x       # Load current y position (column)
+    addi $t6, $t6, 1        # Move left (y = y - 1)
+    sw $t6, capsule_x       # Store updated y positiond
+    
+    # Then redraw capsule at new position
+    jal draw_start_capsule
+    j game_loop
+    
 respond_to_X:
+    j key_check
 respond_to_Z:
+    j key_check
 respond_to_P:
+    j key_check
   
