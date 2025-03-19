@@ -6,7 +6,7 @@
 #
 # We assert that the code submitted here is entirely our own 
 # creation, and will indicate otherwise when it is not.
-#hello
+
 ######################## Bitmap Display Configuration ########################
 # - Unit width in pixels:       TODO
 # - Unit height in pixels:      TODO
@@ -31,7 +31,7 @@ COLOR_BLACK:    .word 0x000000
 COLOR_RED:      .word 0xff0000
 COLOR_BLUE:     .word 0x0000ff
 COLOR_YELLOW:   .word 0xffff00
-COLOR_GREEN:    .word 0x00ff00 # For border/UI
+COLOUR_GREY:    .word 0x3d3d3d
 COLOR_WHITE:    .word 0xffffff # For text/UI
 
 # Game board dimensions (in units)
@@ -68,7 +68,19 @@ KEY_P:          .word 0x70    # pause
 ##############################################################################
 # Mutable Data
 ##############################################################################
+capsule_x:      .word 7                # x coordinate of current capsule
+capsule_y:      .word 0                # y coordinate of current capsule
+capsule_orient: .word 0                # 0 = horizontal, 1 = vertical
 
+capsule_color1: .word 0                # left (or top) color index (0=red,1=blue,2=yellow)
+capsule_color2: .word 0                # right (or bottom) color index
+
+board:          .space 512             # Board array (8*16*4 bytes)
+
+viruses_left:   .word 4                # Start with 4 viruses
+
+gravity_timer:  .word 0                # No idea what this is
+gravity_speed:  .word 20
 ##############################################################################
 # Code
 ##############################################################################
@@ -79,17 +91,18 @@ KEY_P:          .word 0x70    # pause
 main:
     # Initialize the game
     # Seed random number generator using system time
-    li $v0, 30
-    syscall
-    move $a0, $0
-    move $a1, $v0
-    li $v0, 40
-    syscall
+    # li $v0, 30
+    # syscall
+    # move $a0, $0
+    # move $a1, $v0
+    # li $v0, 40
+    # syscall
 
-    jal clear_board         # Clear board array
-    jal draw_borders        # Draw game borders
-    jal init_viruses        # Place viruses randomly
-    jal spawn_capsule       # Create first capsule
+    # jal clear_board         # Clear board array
+    # jal draw_borders        # Draw game borders
+    # jal init_viruses        # Place viruses randomly
+    # jal spawn_capsule       # Create first capsule
+    
 
 game_loop:
     # 1a. Check if key has been pressed
@@ -101,3 +114,9 @@ game_loop:
 
     # 5. Go back to Step 1
     j game_loop
+
+
+
+exit:
+    li $v0, 10             # Terminate the program gracefully
+    syscall
