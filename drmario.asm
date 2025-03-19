@@ -225,7 +225,6 @@ key_check:
     lw $t0, ADDR_KBRD               # $t0 = base address for keyboard
     lw $t1, 0($t0)                  # Load first word from keyboard (key state)
     beq $t1, 1, keyboard_input      # If first word 1, key is pressed
-    jr $ra
     j key_check
     
 keyboard_input:                     # A key is pressed
@@ -290,5 +289,25 @@ respond_to_X:
     j key_check
 respond_to_Z:
     j key_check
+    
 respond_to_P:
-    j key_check
+    lw $t6, GAME_PAUSED
+    beq $t6, 0, pause        # Pause if p pressed first time
+    lw $t1, 0($t0)           # If GAME_PAUSED is already 1, load first word from keyboard (key state)
+    beq $t1, 1, check_p      # If key is pressed, send to check_p for exact key
+    j respond_to_P           
+check_p:
+    lw $t2, 4($t0)           # Load second word from keyboard into $t2 (actual key pressed)
+    lw $t3, KEY_P
+    beq $t2, $t3, unpause    # Unpause if p was pressed, otherwise loop back
+    j respond_to_P           # This prevents any other key from being presßsed while paused
+pause:
+    addi $t6, $t6, 1
+    sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 1  
+    j respond_to_P
+unpause:
+    addi $t6, $t6, -1
+    sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 0
+    j key_check              # Allows other keys to be pressed
+  
+
