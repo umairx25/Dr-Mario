@@ -81,6 +81,7 @@ viruses_left:   .word 4                # Start with 4 viruses
 
 gravity_timer:  .word 0                # No idea what this is
 gravity_speed:  .word 20
+is_colour_set:  .word 4
 ##############################################################################
 # Code
 ##############################################################################
@@ -90,18 +91,18 @@ gravity_speed:  .word 20
     # Run the game.
 main:
     jal draw_bottle
-    jal draw_dr_mario
     jal draw_start_capsule
     # jal key_check
 
 game_loop:
     # 1a. Check if key has been pressed
+    jal key_check
     # 1b. Check which key has been pressed
     # 2a. Check for collisions
 	# 2b. Update locations (capsules)
 	# 3. Draw the screen
 	# 4. Sleep
-	jal key_check
+	
 
     # 5. Go back to Step 1
     j game_loop
@@ -111,65 +112,6 @@ exit:
     li $v0, 10             # Terminate the program gracefully
     syscall
 
-draw_dr_mario:
-    # Load base display address
-    lw $t0, ADDR_DSPL
-    
-    # Load colors
-    lw $t1, COLOR_RED       # Hat color
-    lw $t2, COLOR_WHITE     # Face/coat color
-    lw $t3, COLOR_BLACK     # Eyes/outline
-    lw $t4, COLOR_BLUE      # Pants color
-    
-    # Set starting position (x = 22, y = 5)
-    li $t5, 22              # X start
-    li $t6, 5               # Y start
-
-    # Calculate base address for Dr. Mario’s head (x=24, y=5)
-    mul $t7, $t5, 4         # x * 4 (column offset)
-    mul $t8, $t6, 128       # y * 128 (row offset)
-    add $t9, $t7, $t8       # total offset
-    add $t9, $t9, $t0       # final address = base + offset
-    
-    # Drawing Dr. Mario
-    # Row 1: Hat (red)
-    sw $t1, 0($t9)          # Hat left
-    sw $t1, 4($t9)          # Hat middle
-    sw $t1, 8($t9)          # Hat right
-    
-    # Move to next row (y+1)
-    addi $t9, $t9, 128
-    sw $t1, 4($t9)          # Middle of hat
-    
-    # Move to next row (y+2), draw face
-    addi $t9, $t9, 128
-    sw $t2, 0($t9)          # Face left
-    sw $t3, 4($t9)          # Eye 1
-    sw $t3, 8($t9)          # Eye 2
-    sw $t2, 12($t9)         # Face right
-    
-    # Move to next row (y+3), draw more face
-    addi $t9, $t9, 128
-    sw $t2, 4($t9)          # Face middle
-    sw $t2, 8($t9)          # Face middle
-    
-    # Move to next row (y+4), draw body
-    addi $t9, $t9, 128
-    sw $t2, 0($t9)          # Body left
-    sw $t2, 4($t9)          # Body center
-    sw $t2, 8($t9)          # Body right
-    
-    # Move to next row (y+5), draw pants
-    addi $t9, $t9, 128
-    sw $t4, 4($t9)          # Pants left
-    sw $t4, 8($t9)          # Pants right
-    
-    # Move to next row (y+6), draw shoes
-    addi $t9, $t9, 128
-    sw $t3, 4($t9)          # Shoe left
-    sw $t3, 8($t9)          # Shoe right
-
-    jr $ra                  # Return
 
 #function to draw the starting screen
 draw_bottle:
@@ -250,11 +192,8 @@ draw_lid:
     jr $ra  # saves the line address to register 31
 
 check_horz:
-    lw $t6, capsule_x       # Load current x position (column)
-    lw $t1, capsule_y       # Load current y position
-
     sgt $t2, $t1, 1
-    slt $t3, $t1, 4
+    slt $t3, $t1, 5
     and $t4, $t2, $t3
     beq $t4, 1, check_lid_horz
     beq $t4, 0, check_reg_horz
@@ -270,8 +209,8 @@ check_lid_horz:
     
     # mul $t6, $t6, 4         # x (column) * 4 (column offset)
     # mul $t1, $t1, 128       # y (row) * 128 (row offset)
-   sgt $t2, $t6, 9
-   slt $t3, $t6, 11
+   sgt $t2, $t7, 8
+   slt $t3, $t7, 12
    and $t4, $t2, $t3
    
    # Return directly without looping
@@ -285,8 +224,8 @@ check_reg_horz:
    addi $sp, $sp, -4       # Move stack pointer
    sw $ra, 0($sp)          # Save $ra on stack
     
-   sgt $t2, $t6, 5
-   slt $t3, $t6, 15
+   sgt $t2, $t7, 4
+   slt $t3, $t7, 16
    and $t4, $t2, $t3
    
    # Return directly without looping
@@ -313,12 +252,18 @@ check_vertical:
 
 
 
+
 #####################################
 # Draw the Capsule
 #####################################
 draw_start_capsule:
     # Load base address of display
-    lw $t0, ADDR_DSPL   
+    lw $t0, ADDR_DSPL 
+    # Load capsule colors
+    lw $t8, COLOR_BLUE      # Left/top capsule color
+    lw $t9, COLOR_RED       # Right/bottom capsule color
+    lw $t6, COLOR_YELLOW      # Right/bottom capsule color
+    lw $t7, COLOR_BLACK     # Load the colour black
 
     # Compute the memory address from (x, y)
     # Note that this calculates the position of the left/top capsule
@@ -329,16 +274,62 @@ draw_start_capsule:
     mul $t3, $a3, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
+    
+    
+    li $a0, 0       # Use default generator ID
+    li $v0, 42      # Syscall to initialize random generator
+    li $a1, 3      # Upper bound (exclusive) -> 3 means max result is 2
+    # li $v0, 42     # Syscall for random integer
+    syscall        # Execute syscall
+    addi $a0, $a0, 1  # Shift range from 0-2 to 1-3
+    
+    beq $a0, 1, pick_left_blue
+    beq $a0, 2, pick_left_red
+    beq $a0, 3, pick_left_yellow
+    
+right_capsule_colour:
+    li $a0, 0       # Use default generator ID
+    li $v0, 42      # Syscall to initialize random generator
+    li $a1, 3      # Upper bound (exclusive) -> 3 means max result is 2
+    # li $v0, 42     # Syscall for random integer
+    syscall        # Execute syscall
+    addi $a0, $a0, 1  # Shift range from 0-2 to 1-3
+    
+    beq $a0, 1, pick_right_blue
+    beq $a0, 2, pick_right_red
+    beq $a0, 3, pick_right_yellow
 
-    # Load capsule colors
-    lw $t8, COLOR_BLUE      # Left/top capsule color
-    lw $t9, COLOR_RED       # Right/bottom capsule color
-    lw $t7, COLOR_BLACK     # Load the colour black
-
+pick_left_blue:
     # Store colors at the computed memory address
     sw $t8, 0($t4)          # Store blue at (x, y)
+    j right_capsule_colour                  # Return
+
+pick_left_red:
+    # Store colors at the computed memory address
+    sw $t9, 0($t4)          # Store red at (x, y)
+    j right_capsule_colour                  # Return
+
+pick_left_yellow:
+    # Store colors at the computed memory address
+    sw $t6, 0($t4)          # Store yellow at (x, y)
+    j right_capsule_colour                  # Return
+
+pick_right_blue:
+    # Store colors at the computed memory address
+    sw $t8, 4($t4)          # Store red at (x+1, y)
+    jr $ra                  # Return
+
+pick_right_red:
+    # Store colors at the computed memory address
     sw $t9, 4($t4)          # Store red at (x+1, y)
     jr $ra                  # Return
+
+pick_right_yellow:
+    # Store colors at the computed memory address
+    sw $t6, 4($t4)          # Store red at (x+1, y)
+    jr $ra                  # Return
+
+    
 #####################################
 # Keyboard Input and Control Handlers
 #####################################
@@ -387,11 +378,12 @@ respond_to_A: # Move left
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
     lw $t0, ADDR_DSPL       # Load base address of display
+    move $t7, $t6            
+    addi $t7, $t7, -1       # Store potential x position in t7
     jal check_horz          # Call check_horz with new x position
-
+    
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
     
-    # addi $t6, $t6, 2       # Move left (x = x - 1)
     mul $t2, $t6, 4         # x (column) * 4 (column offset)
     mul $t3, $t1, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
@@ -399,7 +391,7 @@ respond_to_A: # Move left
     sw $t7, 0($t4)          # Store black at (x, y)
     sw $t7, 4($t4)          # Store black at (x+1, y)
     
-    addi $t6, $t6, -1       # Move left (x = x - 1)
+    addi $t6, $t6, -1       # Move actual x postion left (x = x - 1)
     sw $t6, capsule_x       # Store updated x position
     
     # Then redraw capsule at new position
@@ -408,22 +400,13 @@ respond_to_A: # Move left
  
 
 respond_to_S:
-    # lw $t6, capsule_y       # Load current x position (column)
-    # addi $t6, $t6, 1        # Move right (x = x + 1)
-    # sw $t6, capsule_y       # Store updated x position
-    
-    # # Then redraw capsule at new position
-    # jal draw_start_capsule
-    # j game_loop
-    
-    # lw $t6, capsule_x       # Load current x position (column)
+    lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current x position (column)
     lw $t0, ADDR_DSPL       # Load base address of display
     jal check_vertical
     
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
     
-    # addi $t6, $t6, 2       # Move left (x = x - 1)
     mul $t2, $t6, 4         # x (column) * 4 (column offset)
     mul $t3, $t1, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
@@ -443,11 +426,12 @@ respond_to_D:
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
     lw $t0, ADDR_DSPL       # Load base address of display
-    jal check_horz          # Call check_horz with new x position
+    move $t7, $t6            
+    addi $t7, $t7, 1        # Store potential x position in t7
+    jal check_horz          # Call check_horz with potential x position
 
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
     
-    # addi $t6, $t6, 2       # Move left (x = x - 1)
     mul $t2, $t6, 4         # x (column) * 4 (column offset)
     mul $t3, $t1, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
@@ -455,7 +439,7 @@ respond_to_D:
     sw $t7, 0($t4)          # Store black at (x, y)
     sw $t7, 4($t4)          # Store black at (x+1, y)
     
-    addi $t6, $t6, 1       # Move left (x = x - 1)
+    addi $t6, $t6, 1        # Move actual x positon left (x = x - 1)
     sw $t6, capsule_x       # Store updated x position
     
     # Then redraw capsule at new position
@@ -486,5 +470,3 @@ unpause:
     addi $t6, $t6, -1
     sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 0
     j key_check              # Allows other keys to be pressed
-  
-
