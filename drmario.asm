@@ -65,6 +65,8 @@ KEY_Z:          .word 0x7A    # rotate left
 KEY_Q:          .word 0x71    # quit
 KEY_P:          .word 0x70    # pause
 
+# filename: .asciiz "fever.wav"
+
 ##############################################################################
 # Mutable Data  start from 1
 ##############################################################################
@@ -91,11 +93,13 @@ is_colour_set:  .word 4
     # Run the game.
 main:
     jal draw_bottle
-    jal draw_start_capsule
+    
     # jal key_check
 
 game_loop:
+    jal draw_start_capsule
     # 1a. Check if key has been pressed
+    # jal play_sound
     jal key_check
     # 1b. Check which key has been pressed
     # 2a. Check for collisions
@@ -111,6 +115,14 @@ game_loop:
 exit:
     li $v0, 10             # Terminate the program gracefully
     syscall
+    
+# play_sound:
+    # li $v0, 11         # Syscall for execve (Linux MIPS)
+    # la $a0, filename   # Load address of filename
+    # li $a1, 0          # No arguments
+    # li $a2, 0          # No environment variables
+    # syscall            # Execute (runs 'music.mp3' with default player)
+    # jr $ra
 
 
 #function to draw the starting screen
@@ -256,78 +268,106 @@ check_vertical:
 #####################################
 # Draw the Capsule
 #####################################
+
 draw_start_capsule:
+    # Load stored capsule colors
+    lw $s1, capsule_color1  # Load left side of capsule color
+    lw $s2, capsule_color2  # Load right side of capsule color
+
+    add $t4, $s1, $s2       # Check if both are zero
+    beq $t4, 0, randomize_capsule  # If both are zero, randomize a new capsule
+
     # Load base address of display
     lw $t0, ADDR_DSPL 
-    # Load capsule colors
-    lw $t8, COLOR_BLUE      # Left/top capsule color
-    lw $t9, COLOR_RED       # Right/bottom capsule color
-    lw $t6, COLOR_YELLOW      # Right/bottom capsule color
-    lw $t7, COLOR_BLACK     # Load the colour black
 
     # Compute the memory address from (x, y)
-    # Note that this calculates the position of the left/top capsule
-    lw $a2, capsule_x       # X-coordinate (column) 41
-    lw $a3, capsule_y       # Y-coordinate (row) 1
+    lw $a2, capsule_x       # X-coordinate (column)
+    lw $a3, capsule_y       # Y-coordinate (row)
 
     mul $t2, $a2, 4         # x (column) * 4 (column offset)
     mul $t3, $a3, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
     
+    # Store existing capsule colors in memory
+    sw $s1, 0($t4)  
+    sw $s2, 4($t4)  
+
+    jr $ra  # Return
+
+randomize_capsule:
+    # Load base address of display
+    lw $t0, ADDR_DSPL 
     
-    li $a0, 0       # Use default generator ID
-    li $v0, 42      # Syscall to initialize random generator
-    li $a1, 3      # Upper bound (exclusive) -> 3 means max result is 2
-    # li $v0, 42     # Syscall for random integer
-    syscall        # Execute syscall
-    addi $a0, $a0, 1  # Shift range from 0-2 to 1-3
+    # Load capsule colors
+    lw $t8, COLOR_BLUE      
+    lw $t9, COLOR_RED       
+    lw $t6, COLOR_YELLOW     
+    lw $t7, COLOR_BLACK    
+
+    # Compute the memory address from (x, y)
+    lw $a2, capsule_x      
+    lw $a3, capsule_y      
+
+    mul $t2, $a2, 4        
+    mul $t3, $a3, 128      
+    add $t4, $t2, $t3      
+    add $t4, $t4, $t0      
+
+    # Generate a random left capsule color
+    li $v0, 42      
+    li $a1, 3       
+    syscall         
+    addi $a0, $a0, 1  
     
     beq $a0, 1, pick_left_blue
     beq $a0, 2, pick_left_red
     beq $a0, 3, pick_left_yellow
-    
+
+pick_left_blue:
+    sw $t8, 0($t4)         
+    move $s1, $t8          
+    j right_capsule_colour 
+
+pick_left_red:
+    sw $t9, 0($t4)         
+    move $s1, $t9          
+    j right_capsule_colour 
+
+pick_left_yellow:
+    sw $t6, 0($t4)         
+    move $s1, $t6          
+    j right_capsule_colour 
+
 right_capsule_colour:
-    li $a0, 0       # Use default generator ID
-    li $v0, 42      # Syscall to initialize random generator
-    li $a1, 3      # Upper bound (exclusive) -> 3 means max result is 2
-    # li $v0, 42     # Syscall for random integer
-    syscall        # Execute syscall
-    addi $a0, $a0, 1  # Shift range from 0-2 to 1-3
+    li $v0, 40      
+    li $a1, 3       
+    syscall         
+    addi $a0, $a0, 1  
     
     beq $a0, 1, pick_right_blue
     beq $a0, 2, pick_right_red
     beq $a0, 3, pick_right_yellow
 
-pick_left_blue:
-    # Store colors at the computed memory address
-    sw $t8, 0($t4)          # Store blue at (x, y)
-    j right_capsule_colour                  # Return
-
-pick_left_red:
-    # Store colors at the computed memory address
-    sw $t9, 0($t4)          # Store red at (x, y)
-    j right_capsule_colour                  # Return
-
-pick_left_yellow:
-    # Store colors at the computed memory address
-    sw $t6, 0($t4)          # Store yellow at (x, y)
-    j right_capsule_colour                  # Return
-
 pick_right_blue:
-    # Store colors at the computed memory address
-    sw $t8, 4($t4)          # Store red at (x+1, y)
-    jr $ra                  # Return
+    sw $t8, 4($t4)        
+    move $s2, $t8        
+    j store_capsule_colors 
 
 pick_right_red:
-    # Store colors at the computed memory address
-    sw $t9, 4($t4)          # Store red at (x+1, y)
-    jr $ra                  # Return
+    sw $t9, 4($t4)        
+    move $s2, $t9        
+    j store_capsule_colors 
 
 pick_right_yellow:
-    # Store colors at the computed memory address
-    sw $t6, 4($t4)          # Store red at (x+1, y)
-    jr $ra                  # Return
+    sw $t6, 4($t4)        
+    move $s2, $t6        
+
+store_capsule_colors:
+    # Store colors in global variables for next check
+    sw $s1, capsule_color1
+    sw $s2, capsule_color2
+    jr $ra
 
     
 #####################################
@@ -479,4 +519,3 @@ unpause:
     sw $t7, 268($t8)
     sw $t7, 140($t8)
     j key_check              # Allows other keys to be pressed
-
