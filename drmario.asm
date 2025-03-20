@@ -68,8 +68,8 @@ KEY_P:          .word 0x70    # pause
 ##############################################################################
 # Mutable Data
 ##############################################################################
-capsule_x:      .word 42                # x coordinate of current capsule
-capsule_y:      .word 1                # y coordinate of current capsule
+capsule_x:      .word 10                # x coordinate of current capsule
+capsule_y:      .word 2                # y coordinate of current capsule
 capsule_orient: .word 0                  # 0 = horizontal, 1 = vertical
 
 capsule_color1: .word 0                # left (or top) color index (0=red,1=blue,2=yellow)
@@ -253,7 +253,7 @@ keyboard_input:                     # A key is pressed
 
     j game_loop
     
-respond_to_Q:
+respond_to_Q: # Quit Game
     # li $v0, 10  # Exit system call
     # syscall   
     j exit
@@ -267,30 +267,30 @@ respond_to_A: # Move left
     jal draw_start_capsule
     j game_loop
 
-respond_to_S:
-    lw $t6, capsule_y       # Load current x position (column)
-    addi $t6, $t6, 1        # Move right (x = x + 1)
-    sw $t6, capsule_y       # Store updated x position
+respond_to_S: # Move Down
+    lw $t6, capsule_y       # Load current y position (row)
+    addi $t6, $t6, 1        # Move right (y = y + 1)
+    sw $t6, capsule_y       # Store updated y position
     
     # Then redraw capsule at new position
     jal draw_start_capsule
     j game_loop
     
-respond_to_D:
-    lw $t6, capsule_x       # Load current y position (column)
-    addi $t6, $t6, 1        # Move left (y = y - 1)
-    sw $t6, capsule_x       # Store updated y positiond
+respond_to_D: # Move Right
+    lw $t6, capsule_x       # Load current x position (column)
+    addi $t6, $t6, 1        # Move left (x = x+ 1)
+    sw $t6, capsule_x       # Store updated x positiond
     
     # Then redraw capsule at new position
     jal draw_start_capsule
     j game_loop
     
-respond_to_X:
+respond_to_X: # Rotate Right
     j key_check
-respond_to_Z:
+respond_to_Z: # Rotate Left
     j key_check
     
-respond_to_P:
+respond_to_P: # Pause Game
     lw $t6, GAME_PAUSED
     beq $t6, 0, pause        # Pause if p pressed first time
     lw $t1, 0($t0)           # If GAME_PAUSED is already 1, load first word from keyboard (key state)
@@ -309,5 +309,4 @@ unpause:
     addi $t6, $t6, -1
     sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 0
     j key_check              # Allows other keys to be pressed
-  
 
