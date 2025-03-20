@@ -66,10 +66,10 @@ KEY_Q:          .word 0x71    # quit
 KEY_P:          .word 0x70    # pause
 
 ##############################################################################
-# Mutable Data
+# Mutable Data  start from 1
 ##############################################################################
-capsule_x:      .word 42                # x coordinate of current capsule
-capsule_y:      .word 1                # y coordinate of current capsule
+capsule_x:      .word 10                # x coordinate of current capsule
+capsule_y:      .word 2                # y coordinate of current capsule
 capsule_orient: .word 0                  # 0 = horizontal, 1 = vertical
 
 capsule_color1: .word 0                # left (or top) color index (0=red,1=blue,2=yellow)
@@ -90,6 +90,7 @@ gravity_speed:  .word 20
     # Run the game.
 main:
     jal draw_bottle
+    jal draw_dr_mario
     jal draw_start_capsule
     # jal key_check
 
@@ -110,10 +111,69 @@ exit:
     li $v0, 10             # Terminate the program gracefully
     syscall
 
+draw_dr_mario:
+    # Load base display address
+    lw $t0, ADDR_DSPL
+    
+    # Load colors
+    lw $t1, COLOR_RED       # Hat color
+    lw $t2, COLOR_WHITE     # Face/coat color
+    lw $t3, COLOR_BLACK     # Eyes/outline
+    lw $t4, COLOR_BLUE      # Pants color
+    
+    # Set starting position (x = 22, y = 5)
+    li $t5, 22              # X start
+    li $t6, 5               # Y start
+
+    # Calculate base address for Dr. Mario’s head (x=24, y=5)
+    mul $t7, $t5, 4         # x * 4 (column offset)
+    mul $t8, $t6, 128       # y * 128 (row offset)
+    add $t9, $t7, $t8       # total offset
+    add $t9, $t9, $t0       # final address = base + offset
+    
+    # Drawing Dr. Mario
+    # Row 1: Hat (red)
+    sw $t1, 0($t9)          # Hat left
+    sw $t1, 4($t9)          # Hat middle
+    sw $t1, 8($t9)          # Hat right
+    
+    # Move to next row (y+1)
+    addi $t9, $t9, 128
+    sw $t1, 4($t9)          # Middle of hat
+    
+    # Move to next row (y+2), draw face
+    addi $t9, $t9, 128
+    sw $t2, 0($t9)          # Face left
+    sw $t3, 4($t9)          # Eye 1
+    sw $t3, 8($t9)          # Eye 2
+    sw $t2, 12($t9)         # Face right
+    
+    # Move to next row (y+3), draw more face
+    addi $t9, $t9, 128
+    sw $t2, 4($t9)          # Face middle
+    sw $t2, 8($t9)          # Face middle
+    
+    # Move to next row (y+4), draw body
+    addi $t9, $t9, 128
+    sw $t2, 0($t9)          # Body left
+    sw $t2, 4($t9)          # Body center
+    sw $t2, 8($t9)          # Body right
+    
+    # Move to next row (y+5), draw pants
+    addi $t9, $t9, 128
+    sw $t4, 4($t9)          # Pants left
+    sw $t4, 8($t9)          # Pants right
+    
+    # Move to next row (y+6), draw shoes
+    addi $t9, $t9, 128
+    sw $t3, 4($t9)          # Shoe left
+    sw $t3, 8($t9)          # Shoe right
+
+    jr $ra                  # Return
+
 #function to draw the starting screen
 draw_bottle:
     lw $t7, COLOUR_GREY     # $t7 = grey
-
     lw $t0, ADDR_DSPL       # $t0 = base address for display
     
 intitialize:
@@ -122,9 +182,9 @@ intitialize:
     li $t6, 0               #loop counter
     
 loop_left:
-    beq $t6, 26, re_initialize     # exits if it reaches the leftmost of the last row
-    sw  $t7, 16($t4)             # draw the gray color on the left most of each line
-    addi $t4, $t4, 128          # increment t4 by 128
+    beq $t6, 26, re_initialize      # exits if it reaches the leftmost of the last row
+    sw  $t7, 16($t4)                # draw the gray color on the left most of each line
+    addi $t4, $t4, 128              # increment t4 by 128
     addi $t6, $t6, 1 
     j loop_left
 
@@ -189,6 +249,70 @@ draw_lid:
     sw $t7, 308($t4) # top right 
     jr $ra  # saves the line address to register 31
 
+check_horz:
+    lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current y position
+
+    sgt $t2, $t1, 1
+    slt $t3, $t1, 4
+    and $t4, $t2, $t3
+    beq $t4, 1, check_lid_horz
+    beq $t4, 0, check_reg_horz
+
+
+check_lid_horz:
+    #t2, t3, t4
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+
+   # lw $t6, capsule_x       # Load current x position (column)
+    # lw $t1, capsule_y       # Load current y position
+    
+    # mul $t6, $t6, 4         # x (column) * 4 (column offset)
+    # mul $t1, $t1, 128       # y (row) * 128 (row offset)
+   sgt $t2, $t6, 9
+   slt $t3, $t6, 11
+   and $t4, $t2, $t3
+   
+   # Return directly without looping
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
+
+check_reg_horz:
+
+    #t2, t3, t4
+   addi $sp, $sp, -4       # Move stack pointer
+   sw $ra, 0($sp)          # Save $ra on stack
+    
+   sgt $t2, $t6, 5
+   slt $t3, $t6, 15
+   and $t4, $t2, $t3
+   
+   # Return directly without looping
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
+
+check_vertical:
+   
+   lw $t6, capsule_x       # Load current x position (column)
+   lw $t1, capsule_y       # Load current y position
+    
+   sgt $t2, $t1, 1
+   slt $t3, $t1, 28
+   and $t4, $t2, $t3
+   
+   addi $sp, $sp, -4       # Move stack pointer
+   sw $ra, 0($sp)          # Save $ra on stack
+   
+   # Return directly without looping
+   lw $ra, 0($sp)    
+   addi $sp, $sp, 4  
+   jr $ra
+
+
+
 #####################################
 # Draw the Capsule
 #####################################
@@ -209,6 +333,7 @@ draw_start_capsule:
     # Load capsule colors
     lw $t8, COLOR_BLUE      # Left/top capsule color
     lw $t9, COLOR_RED       # Right/bottom capsule color
+    lw $t7, COLOR_BLACK     # Load the colour black
 
     # Store colors at the computed memory address
     sw $t8, 0($t4)          # Store blue at (x, y)
@@ -260,26 +385,78 @@ respond_to_Q:
 
 respond_to_A: # Move left
     lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
+    jal check_horz          # Call check_horz with new x position
+
+    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
+    
+    # addi $t6, $t6, 2       # Move left (x = x - 1)
+    mul $t2, $t6, 4         # x (column) * 4 (column offset)
+    mul $t3, $t1, 128       # y (row) * 128 (row offset)
+    add $t4, $t2, $t3       # total offset
+    add $t4, $t4, $t0       # final address = base + offset
+    sw $t7, 0($t4)          # Store black at (x, y)
+    sw $t7, 4($t4)          # Store black at (x+1, y)
+    
     addi $t6, $t6, -1       # Move left (x = x - 1)
     sw $t6, capsule_x       # Store updated x position
     
     # Then redraw capsule at new position
     jal draw_start_capsule
     j game_loop
+ 
 
 respond_to_S:
-    lw $t6, capsule_y       # Load current x position (column)
-    addi $t6, $t6, 1        # Move right (x = x + 1)
-    sw $t6, capsule_y       # Store updated x position
+    # lw $t6, capsule_y       # Load current x position (column)
+    # addi $t6, $t6, 1        # Move right (x = x + 1)
+    # sw $t6, capsule_y       # Store updated x position
+    
+    # # Then redraw capsule at new position
+    # jal draw_start_capsule
+    # j game_loop
+    
+    # lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current x position (column)
+    lw $t0, ADDR_DSPL       # Load base address of display
+    jal check_vertical
+    
+    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
+    
+    # addi $t6, $t6, 2       # Move left (x = x - 1)
+    mul $t2, $t6, 4         # x (column) * 4 (column offset)
+    mul $t3, $t1, 128       # y (row) * 128 (row offset)
+    add $t4, $t2, $t3       # total offset
+    add $t4, $t4, $t0       # final address = base + offset
+    sw $t7, 0($t4)          # Store black at (x, y)
+    sw $t7, 4($t4)          # Store black at (x+1, y)
+    
+    addi $t1, $t1, 1        # Move down (y = y + 1)
+    sw $t1, capsule_y       # Store updated y position
     
     # Then redraw capsule at new position
     jal draw_start_capsule
     j game_loop
     
+    
 respond_to_D:
-    lw $t6, capsule_x       # Load current y position (column)
-    addi $t6, $t6, 1        # Move left (y = y - 1)
-    sw $t6, capsule_x       # Store updated y positiond
+    lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
+    jal check_horz          # Call check_horz with new x position
+
+    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
+    
+    # addi $t6, $t6, 2       # Move left (x = x - 1)
+    mul $t2, $t6, 4         # x (column) * 4 (column offset)
+    mul $t3, $t1, 128       # y (row) * 128 (row offset)
+    add $t4, $t2, $t3       # total offset
+    add $t4, $t4, $t0       # final address = base + offset
+    sw $t7, 0($t4)          # Store black at (x, y)
+    sw $t7, 4($t4)          # Store black at (x+1, y)
+    
+    addi $t6, $t6, 1       # Move left (x = x - 1)
+    sw $t6, capsule_x       # Store updated x position
     
     # Then redraw capsule at new position
     jal draw_start_capsule
