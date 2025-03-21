@@ -104,6 +104,7 @@ is_colour_set:  .word 4
     
 main:
     li $t1, 0
+    li $s6, 1000 # gradual speed increase
     # jal play_sound
     jal draw_bottle
     # jal key_check
@@ -421,9 +422,12 @@ key_check:
     lw $t0, ADDR_KBRD               # $t0 = base address for keyboard
     lw $t1, 0($t0)                  # Load first word from keyboard (key state)
     beq $t1, 1, keyboard_input      # If first word 1, key is pressed
-    li $a0, 500       # Sleep for 1 second
+    
+    
+    move $a0, $s6       # Sleep for 1 second
     li $v0, 32         # Syscall for sleep
     syscall
+    addi $s6, $s6, -40
     j respond_to_S
     j key_check
     
