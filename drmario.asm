@@ -427,7 +427,7 @@ key_check:
     lw $t0, ADDR_KBRD               # $t0 = base address for keyboard
     lw $t1, 0($t0)                  # Load first word from keyboard (key state)
     beq $t1, 1, keyboard_input      # If first word 1, key is pressed
-    li $a0, 270       # Sleep for 1 second
+    li $a0, 500       # Sleep for 1 second
     li $v0, 32         # Syscall for sleep
     syscall
     j respond_to_S
@@ -474,8 +474,11 @@ respond_to_A: # Move left
     lw $t0, ADDR_DSPL       # Load base address of display
     move $t7, $t6            
     addi $t7, $t7, -1       # Store potential x position in t7
-    jal check_horz          # Call check_horz with new x position
     
+    jal check_horz          # Call check_horz with new x position
+    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
+    
+    jal check_vertical
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
     
     mul $t2, $t6, 4         # x (column) * 4 (column offset)
@@ -528,9 +531,7 @@ respond_to_S:
     j game_loop
     
     down_vert_S:
-        addi $t1, $t1, 1        # Move down (y = y + 1)
         sw $t1, capsule_y       # Store updated y position
-        
         sw $t7, 0($t4)          # Store black at (x, y)
         sw $t7, -128($t4)          # Store black at (x+1, y)
         addi $t1, $t1, 1        # Move down (y = y + 1)
@@ -546,8 +547,11 @@ respond_to_D:
     lw $t0, ADDR_DSPL       # Load base address of display
     move $t7, $t6            
     addi $t7, $t7, 1        # Store potential x position in t7
+    
     jal check_horz          # Call check_horz with potential x position
-
+    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
+    
+    jal check_vertical
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
     
     mul $t2, $t6, 4         # x (column) * 4 (column offset)
@@ -591,6 +595,17 @@ respond_to_W:
     beq $s4, 1, vert_to_horz
 
 horz_to_vert:
+    mul $t2, $t6, 4         # x (column) * 4 (column offset)
+    mul $t3, $t1, 128       # y (row) * 128 (row offset)
+    add $t4, $t2, $t3       # total offset
+    add $t4, $t4, $t0       # final address = base + offset
+    
+    sw $t7, 4($t4)          # Store black at (x+1, y)
+    addi $s4, $s4, 1
+    
+    jal check_vertical
+    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
+    
     lw $t2, capsule_color1
     lw $t3, capsule_color2
     move $t4, $t2
@@ -598,22 +613,7 @@ horz_to_vert:
     move $t3, $t4
     sw $t2, capsule_color1
     sw $t3, capsule_color2
-    # addi $t1, $t1, -1
-    # addi $t6, $t6, -1
     
-    mul $t2, $t6, 4         # x (column) * 4 (column offset)
-    mul $t3, $t1, 128       # y (row) * 128 (row offset)
-    add $t4, $t2, $t3       # total offset
-    add $t4, $t4, $t0       # final address = base + offset
-    # sw $t7, 0($t4)          # Store black at (x, y)
-    sw $t7, 4($t4)          # Store black at (x+1, y)
-    
-    # addi $t6, $t6, 1        # Move actual x positon left (x = x - 1)
-    # sw $t6, capsule_x       # Store updated x position
-       
-    addi $s4, $s4, 1
-    # sw $t1, capsule_y
-    # sw $t6, capsule_x
     sw $s4, capsule_orient
     jal draw_start_capsule
     j game_loop
@@ -630,6 +630,8 @@ vert_to_horz:
     sw $t7, -128($t4)          # Store black at (x+1, y)
     
     addi $s4, $s4, -1
+    jal check_vertical
+    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
     # sw $t1, capsule_y
     # sw $t6, capsule_x
     sw $s4, capsule_orient
