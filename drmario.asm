@@ -34,18 +34,23 @@ COLOR_YELLOW:   .word 0xffff00
 COLOUR_GREY:    .word 0x3d3d3d
 COLOR_WHITE:    .word 0xffffff # For text/UI
 
+COLOR_TABLE:
+    .word 0x000000  # Black         (index 0)
+    .word 0xff0000  # Red           (index 1)
+    .word 0x0000ff  # Blue          (index 2)
+    .word 0xffff00  # Yellow        (index 3)
+    .word 0xff0000  # Red(virus)    (index 4)
+    .word 0x0000ff  # Blue(virus)   (index 5)
+    .word 0xffff00  # Yellow(virus) (index 6)
+
 # Game board dimensions (in units)
-BOARD_WIDTH:    .word 8       # Width of playable area
-BOARD_HEIGHT:   .word 16      # Height of playable area
-BOARD_X_OFFSET: .word 4       # X offset from left edge of display
-BOARD_Y_OFFSET: .word 4       # Y offset from top edge of display
+BOARD_WIDTH:    .word 12       # Width of playable area
+BOARD_HEIGHT:   .word 24      # Height of playable area
+BOARD_OFFSET:   .word -5       # X and Y offset from left edge of display (yes, they are equal)
 
 # Display dimensions (in units)
 DISPLAY_WIDTH:  .word 32      # 256/8 = 32 units wide
 DISPLAY_HEIGHT: .word 32      # 256/8 = 32 units high
-
-# Capsule info
-NUM_COLORS:     .word 3       # Number of different colors (red, blue, yellow)
 
 # Movement deltas
 MOVE_LEFT:      .word -1
@@ -95,6 +100,7 @@ is_colour_set:  .word 4
 main:
     # jal play_sound
     jal draw_bottle
+    jal init_viruses
     # jal key_check
 
 game_loop:
@@ -335,7 +341,8 @@ randomize_capsule:
 
     # Generate a random left capsule color
     li $v0, 42      
-    li $a1, 3       
+    li $a1, 3 
+    li $a0, 0               # reinitialize a0 to 0
     syscall         
     addi $a0, $a0, 1  
     
@@ -635,3 +642,106 @@ unpause:
     sw $t7, 268($t8)
     sw $t7, 140($t8)
     j key_check              # Allows other keys to be pressed
+    
+
+#####################################
+# Board Routines
+#####################################
+# Set a cell in the board
+# Parameters: $a0 = x, $a1 = y, $a2 = value
+set_board_cell:
+    lw $t4, BOARD_WIDTH
+    lw $s3, BOARD_OFFSET
+    add $a0, $a0, $s3     # Scale the x and y values from the display to the board by subtracting the offset
+    add $a1, $a1, $s3
+    
+    mul $t0, $a1, $t4     # t0 = y * BOARD_WIDTH
+    sll $t2, $a0, 2       # t2 = x * 4 (x offset)
+    add $t0, $t0, $t2     # t0 = (y * BOARD_WIDTH) + (x * 4)
+    la $t1, board
+    add $t1, $t1, $t0
+    sw $a2, 0($t1)
+    jr $ra
+
+# Get a cell value from the board
+# Parameters: $a0 = x, $a1 = y; Returns in $v0
+get_board_cell:
+    lw $t4, BOARD_WIDTH
+    lw $s3, BOARD_OFFSET
+    add $a0, $a0, $s3     # Scale the x and y values from the display to the board by subtracting the offset
+    add $a1, $a1, $s3
+    
+    mul $t0, $a1, $t4     # t0 = y * BOARD_WIDTH
+    sll $t2, $a0, 2       # t2 = x * 4 (x offset)
+    add $t0, $t0, $t2     # t0 = (y * BOARD_WIDTH) + (x * 4)
+    la $t1, board
+    add $t1, $t1, $t0
+    lw $v0, 0($t1)
+    jr $ra
+
+# Convert colour indexes to hex codes
+# Parameters: $a0 = colour_index; Returns RGB colour in $v0
+get_color:
+    la $t0, COLOR_TABLE     # Load address of color table
+    sll $t1, $a0, 2         # Multiply index by 4 (word size)
+    add $t0, $t0, $t1       # Compute address of COLOR_TABLE[index]
+    lw  $v0, 0($t0)         # Load color value
+    jr  $ra                 # Return
+
+#####################################
+# Virus and Elimination Routines
+#####################################
+# Initialize viruses randomly in the lower half of board
+init_viruses:
+    li $t9, 0           # virus counter
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+init_virus_loop:
+    beq $t9, 4, init_virus_done
+    # Random x coordinate between 0 and BOARD_WIDTH-1
+    li $v0, 42
+    lw $a1, BOARD_WIDTH
+    li $a0, 0               # reinitialize a0 to 0
+    syscall #returns in a0
+    addi $a0, $a0, 5
+    move $s4, $a0
+    # Random y coordinate in lower half (BOARD_HEIGHT/2 to BOARD_HEIGHT-1)
+    lw   $t3, BOARD_HEIGHT   # Load board height into $t3
+    div  $t3, $t3, 2         # Divide BOARD_HEIGHT by 2; quotient in LO
+    mflo $t3                # $t3 = BOARD_HEIGHT/2
+    move $t4, $t3           # keep for further use
+    li   $v0, 42            # Syscall for random number (Saturn convention)
+    move   $a1, $t3
+    li $a0, 0               # reinitialize a0 to 0
+    syscall                 # Random y-coordinate is returned in $a0
+    add $s5, $t4, $a0
+    
+    # Get random color for virus (viruses encoded as 4,5,6)
+    li $v0, 42
+    li $a1, 3  # pick a number from 0 to (4-1) and we will add 4 to get 4-6
+    li $a0, 0               # reinitialize a0 to 0
+    syscall
+    addi $a0, $a0, 4
+    jal get_color
+    move $t7, $v0
+    li $v0, 0
+    
+    # Set board cell at (random x, random y) if empty
+    move $a0, $s4
+    move $a1, $s5
+    jal get_board_cell
+    bnez $v0, skip_virus_place
+  
+   
+skip_virus_place:
+    j init_virus_loop
+init_virus_done:
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
+    
+
+
+
+    
+    
