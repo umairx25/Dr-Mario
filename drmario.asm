@@ -126,18 +126,11 @@ game_loop:
     # j respond_to_S
     li $a0, 16             # Sleep for ~16ms (1/60th second)
     li $v0, 32             # Syscall for sleep
+    move $a0, $zero  # Store time as seed
     syscall
 
     # 5. Go back to Step 1
     j game_loop
-
-# gravity:
-    # li $a0, 1000       # Sleep for 1 second
-    # li $v0, 32         # Syscall for sleep
-    # syscall
-    # j respond_to_S
-    # j gravity
-    
 
 exit:
     li $v0, 10             # Terminate the program gracefully
@@ -337,7 +330,6 @@ draw_start_capsule:
 draw_vert:
     sw $s1, 0($t4)  
     sw $s2, -128($t4)  
-
     jr $ra  # Return
     
 
@@ -361,8 +353,9 @@ randomize_capsule:
     add $t4, $t4, $t0      
 
     # Generate a random left capsule color
-    li $v0, 40      
-    li $a1, 3       
+    li $v0, 42      
+    li $a1, 3
+    li $a0, 0
     syscall         
     addi $a0, $a0, 1  
     
@@ -386,8 +379,9 @@ pick_left_yellow:
     j right_capsule_colour 
 
 right_capsule_colour:
-    li $v0, 40      
-    li $a1, 3       
+    li $v0, 42     
+    li $a1, 3 
+    li $a0, 0
     syscall         
     addi $a0, $a0, 1  
     
@@ -463,9 +457,7 @@ keyboard_input:                     # A key is pressed
 
     j game_loop
     
-respond_to_Q: # Quit Game
-    # li $v0, 10  # Exit system call
-    # syscall   
+respond_to_Q: # Quit Game 
     j exit
 
 respond_to_A: # Move left
