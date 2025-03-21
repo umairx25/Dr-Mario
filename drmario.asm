@@ -91,25 +91,52 @@ is_colour_set:  .word 4
 	.text
 	.globl main
 
-    # Run the game.
+
+
+# loop:
+    # li $a0, 1000       # Sleep for 1 second
+    # li $v0, 32         # Syscall for sleep
+    # syscall            
+
+    # addi $t1, $t1, 1   # Increment counter
+    # j loop             # Repeat
+    # # Run the game.
+    
 main:
+    li $t1, 0
     # jal play_sound
     jal draw_bottle
     # jal key_check
 
 game_loop:
+    
+    # 3. Draw the screen
     jal draw_start_capsule
     # 1a. Check if key has been pressed
-    jal key_check
+    # 1b. Check which key has been pressed
     # 1b. Check which key has been pressed
     # 2a. Check for collisions
 	# 2b. Update locations (capsules)
-	# 3. Draw the screen
-	# 4. Sleep
-	
+    jal key_check
+    
+    # 4. Sleep
+    # li $a0, 100       # Sleep for 1 second
+    # li $v0, 32         # Syscall for sleep
+    # syscall
+    # j respond_to_S
+    li $a0, 16             # Sleep for ~16ms (1/60th second)
+    li $v0, 32             # Syscall for sleep
+    syscall
 
     # 5. Go back to Step 1
     j game_loop
+
+# gravity:
+    # li $a0, 1000       # Sleep for 1 second
+    # li $v0, 32         # Syscall for sleep
+    # syscall
+    # j respond_to_S
+    # j gravity
     
 
 exit:
@@ -334,7 +361,7 @@ randomize_capsule:
     add $t4, $t4, $t0      
 
     # Generate a random left capsule color
-    li $v0, 42      
+    li $v0, 40      
     li $a1, 3       
     syscall         
     addi $a0, $a0, 1  
@@ -400,6 +427,10 @@ key_check:
     lw $t0, ADDR_KBRD               # $t0 = base address for keyboard
     lw $t1, 0($t0)                  # Load first word from keyboard (key state)
     beq $t1, 1, keyboard_input      # If first word 1, key is pressed
+    li $a0, 270       # Sleep for 1 second
+    li $v0, 32         # Syscall for sleep
+    syscall
+    j respond_to_S
     j key_check
     
 keyboard_input:                     # A key is pressed
