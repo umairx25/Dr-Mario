@@ -62,10 +62,11 @@ KEY_S:          .word 0x73    # move down
 KEY_D:          .word 0x64    # move right
 KEY_X:          .word 0x78    # rotate right
 KEY_Z:          .word 0x7A    # rotate left
+KEY_W:          .word 0x77    # general rotate
 KEY_Q:          .word 0x71    # quit
 KEY_P:          .word 0x70    # pause
 
-# filename: .asciiz "fever.wav"
+# filename: .asciiz "/Users/umairarham/Documents/CSC258/Dr-Mario/fever.wav"
 
 ##############################################################################
 # Mutable Data  start from 1
@@ -77,7 +78,7 @@ capsule_orient: .word 0                # 0 = horizontal, 1 = vertical
 capsule_color1: .word 0                # left (or top) color index (0=red,1=blue,2=yellow)
 capsule_color2: .word 0                # right (or bottom) color index
 
-board:          .space 512             # Board array (8*16*4 bytes)
+board:          .space 1152             # Board array (12*24 bytes)
 
 viruses_left:   .word 4                # Start with 4 viruses
 
@@ -92,14 +93,13 @@ is_colour_set:  .word 4
 
     # Run the game.
 main:
+    # jal play_sound
     jal draw_bottle
-    
     # jal key_check
 
 game_loop:
     jal draw_start_capsule
     # 1a. Check if key has been pressed
-    # jal play_sound
     jal key_check
     # 1b. Check which key has been pressed
     # 2a. Check for collisions
@@ -117,11 +117,9 @@ exit:
     syscall
     
 # play_sound:
-    # li $v0, 11         # Syscall for execve (Linux MIPS)
-    # la $a0, filename   # Load address of filename
-    # li $a1, 0          # No arguments
-    # li $a2, 0          # No environment variables
-    # syscall            # Execute (runs 'music.mp3' with default player)
+    # li $v0, 31          # Syscall for playing audio
+    # la $a0, filename    # Load the address of the filename
+    # syscall             # Play the sound
     # jr $ra
 
 
@@ -235,6 +233,8 @@ check_reg_horz:
     #t2, t3, t4
    addi $sp, $sp, -4       # Move stack pointer
    sw $ra, 0($sp)          # Save $ra on stack
+   lw $t5, capsule_orient
+   beq $t5, 1, check_vert_reg_right
     
    sgt $t2, $t7, 4
    slt $t3, $t7, 16
@@ -245,6 +245,17 @@ check_reg_horz:
     addi $sp, $sp, 4  
     jr $ra
 
+  check_vert_reg_right:
+    sgt $t2, $t7, 4
+    slt $t3, $t7, 17
+    and $t4, $t2, $t3
+   
+   # Return directly without looping
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
+  
+  
 check_vertical:
    
    lw $t6, capsule_x       # Load current x position (column)
@@ -261,8 +272,6 @@ check_vertical:
    lw $ra, 0($sp)    
    addi $sp, $sp, 4  
    jr $ra
-
-
 
 
 #####################################
@@ -289,11 +298,21 @@ draw_start_capsule:
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
     
+    lw $t5, capsule_orient
+    beq $t5, 1, draw_vert 
+    
     # Store existing capsule colors in memory
     sw $s1, 0($t4)  
     sw $s2, 4($t4)  
 
     jr $ra  # Return
+
+draw_vert:
+    sw $s1, 0($t4)  
+    sw $s2, -128($t4)  
+
+    jr $ra  # Return
+    
 
 randomize_capsule:
     # Load base address of display
@@ -368,7 +387,7 @@ store_capsule_colors:
     sw $s1, capsule_color1
     sw $s2, capsule_color2
     jr $ra
-
+    
     
 #####################################
 # Keyboard Input and Control Handlers
@@ -385,6 +404,7 @@ key_check:
     
 keyboard_input:                     # A key is pressed
     lw $t2, 4($t0)                  # Load second word from keyboard into $t2 (actual key pressed)
+    lw $t5, capsule_orient
 
     lw $t3, KEY_Q
     beq $t2, $t3, respond_to_Q
@@ -406,6 +426,9 @@ keyboard_input:                     # A key is pressed
 
     lw $t3, KEY_Z
     beq $t2, $t3, respond_to_Z
+    
+    lw $t3, KEY_W
+    beq $t2, $t3, respond_to_W
 
     j game_loop
     
@@ -428,6 +451,8 @@ respond_to_A: # Move left
     mul $t3, $t1, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
+    
+    beq $t5, 1, left_vert_A
     sw $t7, 0($t4)          # Store black at (x, y)
     sw $t7, 4($t4)          # Store black at (x+1, y)
     
@@ -437,6 +462,16 @@ respond_to_A: # Move left
     # Then redraw capsule at new position
     jal draw_start_capsule
     j game_loop
+    
+    left_vert_A:
+        sw $t7, 0($t4)          # Store black at (x+1, y)
+        sw $t7, -128($t4)          # Store black at (x+1, y)
+        addi $t6, $t6, -1       # Move actual x postion left (x = x - 1)
+        sw $t6, capsule_x       # Store updated x position
+    
+        # Then redraw capsule at new position
+        jal draw_start_capsule
+        j game_loop
  
 respond_to_S:
     lw $t6, capsule_x       # Load current x position (column)
@@ -450,15 +485,29 @@ respond_to_S:
     mul $t3, $t1, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
+    beq $t5, 1, down_vert_S 
+    
     sw $t7, 0($t4)          # Store black at (x, y)
     sw $t7, 4($t4)          # Store black at (x+1, y)
-    
     addi $t1, $t1, 1        # Move down (y = y + 1)
     sw $t1, capsule_y       # Store updated y position
     
     # Then redraw capsule at new position
     jal draw_start_capsule
     j game_loop
+    
+    down_vert_S:
+        addi $t1, $t1, 1        # Move down (y = y + 1)
+        sw $t1, capsule_y       # Store updated y position
+        
+        sw $t7, 0($t4)          # Store black at (x, y)
+        sw $t7, -128($t4)          # Store black at (x+1, y)
+        addi $t1, $t1, 1        # Move down (y = y + 1)
+        sw $t1, capsule_y       # Store updated y position
+    
+        # Then redraw capsule at new position
+        jal draw_start_capsule
+        j game_loop
     
 respond_to_D:
     lw $t6, capsule_x       # Load current x position (column)
@@ -474,6 +523,8 @@ respond_to_D:
     mul $t3, $t1, 128       # y (row) * 128 (row offset)
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
+    
+    beq $t5, 1, right_vert_D
     sw $t7, 0($t4)          # Store black at (x, y)
     sw $t7, 4($t4)          # Store black at (x+1, y)
     
@@ -484,10 +535,75 @@ respond_to_D:
     jal draw_start_capsule
     j game_loop
     
+    right_vert_D:
+        sw $t7, 0($t4)          # Store black at (x, y)
+        sw $t7, -128($t4)          # Store black at (x+1, y)
+    
+        addi $t6, $t6, 1        # Move actual x positon left (x = x - 1)
+        sw $t6, capsule_x       # Store updated x position
+    
+        # Then redraw capsule at new position
+        jal draw_start_capsule
+        j game_loop     
+    
 respond_to_X: # Rotate Right
     j key_check
 respond_to_Z: # Rotate Left
     j key_check
+
+respond_to_W:
+    lw $s4, capsule_orient 
+    lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
+    beq $s4, 0, horz_to_vert
+    beq $s4, 1, vert_to_horz
+
+horz_to_vert:
+    lw $t2, capsule_color1
+    lw $t3, capsule_color2
+    move $t4, $t2
+    move $t2, $t3
+    move $t3, $t4
+    sw $t2, capsule_color1
+    sw $t3, capsule_color2
+    # addi $t1, $t1, -1
+    # addi $t6, $t6, -1
+    
+    mul $t2, $t6, 4         # x (column) * 4 (column offset)
+    mul $t3, $t1, 128       # y (row) * 128 (row offset)
+    add $t4, $t2, $t3       # total offset
+    add $t4, $t4, $t0       # final address = base + offset
+    # sw $t7, 0($t4)          # Store black at (x, y)
+    sw $t7, 4($t4)          # Store black at (x+1, y)
+    
+    # addi $t6, $t6, 1        # Move actual x positon left (x = x - 1)
+    # sw $t6, capsule_x       # Store updated x position
+       
+    addi $s4, $s4, 1
+    # sw $t1, capsule_y
+    # sw $t6, capsule_x
+    sw $s4, capsule_orient
+    jal draw_start_capsule
+    j game_loop
+
+vert_to_horz:
+    # addi $t6, $t6, 1
+    # addi $t1, $t1, 1
+    
+    mul $t2, $t6, 4         # x (column) * 4 (column offset)
+    mul $t3, $t1, 128       # y (row) * 128 (row offset)
+    add $t4, $t2, $t3       # total offset
+    add $t4, $t4, $t0       # final address = base + offset
+    # sw $t7, 0($t4)          # Store black at (x, y)
+    sw $t7, -128($t4)          # Store black at (x+1, y)
+    
+    addi $s4, $s4, -1
+    # sw $t1, capsule_y
+    # sw $t6, capsule_x
+    sw $s4, capsule_orient
+    jal draw_start_capsule
+    j game_loop
     
 respond_to_P:
     lw $t6, GAME_PAUSED
