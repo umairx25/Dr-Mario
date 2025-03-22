@@ -85,29 +85,45 @@ viruses_left:   .word 4                # Start with 4 viruses
 gravity_timer:  .word 0                # No idea what this is
 gravity_speed:  .word 20
 is_colour_set:  .word 4
+
+dr_mario_pixels:
+    .word 0x000000, 0xFFCB8E, 0xFFB570, 0x000000, 0xABABAB, 0xACACAC, 0x974A00, 0x964B00, 0x954B00, 0x000000
+    .word 0x000000, 0xFDFDFE, 0xFCFFFA, 0xFFB66F, 0x000000, 0x000000, 0xFFB671, 0xFFB770, 0xFFB96D, 0x000000
+    .word 0x000000, 0xFFFBFE, 0xFFFFFF, 0x000000, 0xFEB46E, 0xFFB56E, 0xFFB56E, 0xFFB56E, 0x954B00, 0x000000
+    .word 0x000000, 0xFFFBFE, 0xFFFFFF, 0xFFFFFE, 0xB0ACA8, 0xAFABAA, 0xFFFEFA, 0xFFFEFA, 0x000000, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0xFFFFFF, 0xADADAD, 0xACACAC, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFEFEFE, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFEFEFF, 0xFFB56B, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0xFFFFFF, 0x000000, 0x000000, 0xFFFFFF, 0xFEFFFE, 0xBF7F7F, 0x000000
+    .word 0x000000, 0x9A4E1D, 0x964B00, 0x964B00, 0x000000, 0x000000, 0x964B00, 0x964B00, 0x954B00, 0x000000
+    .word 0x000000, 0x8C5434, 0x8B4712, 0x8D4816, 0x000000, 0x000000, 0x894A12, 0x864713, 0x874A17, 0x000000
+
+virus_pixels:
+    .word 0x2F2A2E, 0x2B2C32, 0x698CEA, 0x6D90EE, 0x6585E2, 0x638BEC, 0x658BEA, 0x6F90EF, 0x6587E9, 0x2A3250
+    .word 0x242A2A, 0x6A8FED, 0x7399F3, 0xAF4A54, 0x698FE8, 0x6A8EEE, 0x8D9EFF, 0xD8C358, 0x423D31, 0x678BEB
+    .word 0x6186DE, 0xCE434D, 0x302E31, 0x312D34, 0x7395EF, 0x7698F3, 0xCEBE5A, 0xD9C554, 0xD7C251, 0x587AD2
+    .word 0x8AA3EF, 0x742634, 0x833642, 0xC6BC7B, 0x45350F, 0x7093F0, 0x738FE7, 0x373D3F, 0x113A4A, 0x67B1E4
+    .word 0x7091EE, 0x343134, 0xD7C557, 0xDE455A, 0x869FFF, 0x779AF2, 0x799BF1, 0x7F98F0, 0x7A97F0, 0x7794EE
+    .word 0x6F92EC, 0x6B8EEA, 0x7996EE, 0x7A97F2, 0x7090F7, 0x7491ED, 0x123148, 0x6F8EEF, 0x85A1FA, 0x7092EB
+    .word 0x7191E6, 0x6689E5, 0x889FF1, 0x7495EE, 0x43371B, 0x38383F, 0x3A3B38, 0x7693EE, 0x7695EE, 0x7597F0
+    .word 0xADAFB7, 0x89A7FE, 0x7193ED, 0x7A99F0, 0x254147, 0x62B0E4, 0x6CB3E9, 0x708FF6, 0x6C91EC, 0x7995F3
+    .word 0xA3A7B4, 0x372F30, 0x7395EF, 0x7394F3, 0x7798F0, 0x62B1EA, 0x08243B, 0x36393E, 0x6B8AEB, 0x7799F9
+    .word 0x5B605F, 0x302F32, 0x3E414F, 0x7391EF, 0x7592F0, 0x6989E8, 0x7898F2, 0x6288EE, 0x9FA0C0, 0x2F2F31
+    # (Add the remaining 18 rows of Dr. Mario's pixels)
 ##############################################################################
 # Code
 ##############################################################################
 	.text
 	.globl main
-
-
-
-# loop:
-    # li $a0, 1000       # Sleep for 1 second
-    # li $v0, 32         # Syscall for sleep
-    # syscall            
-
-    # addi $t1, $t1, 1   # Increment counter
-    # j loop             # Repeat
-    # # Run the game.
     
 main:
     li $t1, 0
     li $s6, 1000 # gradual speed increase
     # jal play_sound
     jal draw_bottle
-    # jal key_check
+
+    jal draw_dr_mario
+    jal draw_viruses
 
 game_loop:
     
@@ -143,7 +159,84 @@ exit:
     # syscall             # Play the sound
     # jr $ra
 
+##############################################################################
+# Draw Dr Mario and Viruses
+##############################################################################
 
+
+draw_dr_mario:
+    lw   $t6, ADDR_DSPL       # Load base display address
+    la   $t1, dr_mario_pixels # Load base address of pixel data
+    li   $t3, 53              # Start X
+    li   $t4, 6              # Start Y
+    
+    addiu $sp, $sp, -4        # Push return address onto stack
+    sw    $ra, 0($sp)
+    
+    jal  draw_characters      # Draw Dr. Mario
+
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4         # Pop stack
+    jr   $ra                  # Return after drawing Mario
+
+draw_viruses:
+    lw   $t6, ADDR_DSPL       # Load base display address
+    la   $t1, virus_pixels    # Load base address of pixel data
+    li   $t3, 53              # Start X
+    li   $t4, 20              # Start Y
+
+    addiu $sp, $sp, -4        # Push return address onto stack
+    sw    $ra, 0($sp)
+
+    jal  draw_characters      # Draw viruses
+
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4         # Pop stack
+    jr   $ra                  # Return after drawing viruses
+
+draw_characters:
+    addiu $sp, $sp, -4        # Save $ra before calling another function
+    sw    $ra, 0($sp)        
+
+    li   $t5, 128             # Row offset (bytes)
+    li   $t7, 4               # Column offset (bytes)
+
+initialize_position:
+    mul  $t8, $t4, $t5        # Y * row offset
+    mul  $t9, $t3, $t7        # X * column offset
+    add  $t8, $t8, $t9        # Compute total offset
+    add  $t0, $t6, $t8        # Compute base address (starting pos)
+
+    li   $t2, 0               # Row counter (Y)
+
+y_loop:
+    li   $t8, 0               # Column counter (X)
+
+x_loop:
+    # Compute memory address for display
+    mul  $t9, $t8, $t7        # X offset
+    add  $t9, $t0, $t9        # Compute final X address
+
+    # Load pixel and store it
+    lw   $t3, 0($t1)          # Load pixel color from sprite data
+    sw   $t3, 0($t9)          # Store to display memory
+
+    addi $t1, $t1, 4          # Move to next pixel in sprite data
+    addi $t8, $t8, 1          # Next column
+    bne  $t8, 10, x_loop      # If not end of row, continue
+
+    add  $t0, $t0, $t5        # Move to the next row (Y offset)
+    addi $t2, $t2, 1          # Next row
+    bne  $t2, 10, y_loop      # If not 10 rows, continue
+
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4         # Pop stack
+    jr   $ra                  # Return
+
+    
+##############################################################################
+# Draw the Medicine Bottle
+##############################################################################
 #function to draw the starting screen
 draw_bottle:
     lw $t7, COLOUR_GREY     # $t7 = grey
@@ -482,6 +575,7 @@ respond_to_A: # Move left
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
     
+    lw $t7, COLOR_BLACK
     beq $t5, 1, left_vert_A
     sw $t7, 0($t4)          # Store black at (x, y)
     sw $t7, 4($t4)          # Store black at (x+1, y)
@@ -503,7 +597,7 @@ respond_to_A: # Move left
         jal draw_start_capsule
         j game_loop
  
-respond_to_S:
+respond_to_S: #move capsule down when S is pressed
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current x position (column)
     lw $t0, ADDR_DSPL       # Load base address of display
@@ -555,6 +649,7 @@ respond_to_D:
     add $t4, $t2, $t3       # total offset
     add $t4, $t4, $t0       # final address = base + offset
     
+    lw $t7, COLOR_BLACK
     beq $t5, 1, right_vert_D
     sw $t7, 0($t4)          # Store black at (x, y)
     sw $t7, 4($t4)          # Store black at (x+1, y)
