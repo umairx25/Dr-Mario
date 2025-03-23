@@ -62,14 +62,18 @@ KEY_Q:          .word 0x71    # quit
 KEY_P:          .word 0x70    # pause
 
 ##############################################################################
-# Mutable Data  start from 1
+# Mutable Data  start from 1     #spawn new pills at 22,5
 ##############################################################################
 capsule_x:      .word 10               # x coordinate of current capsule
 capsule_y:      .word 2                # y coordinate of current capsule
+next_capsule_x:  .word 22               # x coordinate of current capsule
+next_capsule_y:  .word 5                # y coordinate of current capsule
 capsule_orient: .word 0                # 0 = horizontal, 1 = vertical
 
 capsule_color1: .word 0                # left (or top) color index (0=red,1=blue,2=yellow)
 capsule_color2: .word 0                # right (or bottom) color index
+next_capsule_color1: .word 0                # left (or top) color index (0=red,1=blue,2=yellow)
+next_capsule_color2: .word 0                # right (or bottom) color index
 
 board:          .space 1152            # Board array (12*24 bytes)
 
@@ -958,7 +962,10 @@ main:
 
 game_loop:
     # 3. Draw the screen
-    jal draw_start_capsule
+    jal draw_curr
+    # jal draw_nxt
+    # jal draw_next
+    # jal randomize_next
     # 1a. Check if key has been pressed
     # 1b. Check which key has been pressed
     # 1b. Check which key has been pressed
@@ -1114,7 +1121,7 @@ loop_top:
     # Check if $t6 is greater than x (e.g., 1) and less than y (e.g., 3)
     li $t3, 4               # Set x = 3 (greater than 3)
     li $t5, 9              # Set y = 9 (less than 9)
-    sgt $t2, $t6, $t3       # Set $t2 to 1 if $t6 > 3
+    sgt $t2, $t6, $t3       # Set $t2 to 1reuse_ if $t6 > 3
     slt $t1, $t6, $t5       # Set $t5 to 1 if $t6 < 9
     and $t2, $t2, $t1       # $t2 is 1 only if $t2 and $t1 are 1
 
@@ -1195,6 +1202,7 @@ check_vertical:
    sgt $t2, $t1, 1
    slt $t3, $t1, 28
    and $t4, $t2, $t3
+   # bnez $t4, reset_next
    
    addi $sp, $sp, -4       # Move stack pointer
    sw $ra, 0($sp)          # Save $ra on stack
@@ -1204,27 +1212,99 @@ check_vertical:
    addi $sp, $sp, 4  
    jr $ra
 
+reset_next:
+    li $t0, 0
+    sw $t0, next_capsule_color1
+    sw $t0, next_capsule_color2
+    jr $ra
+
+
 
 #####################################
 # Draw the Capsule
 #####################################
 
-draw_start_capsule:
+draw_curr:
+    
+    lw $s3, next_capsule_color1
+    lw $s4, next_capsule_color2
+    add $t4, $s3, $s4
+    bne $t4, 0, reuse_old_next
 
-    # Load stored capsule colors
+    addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
+    sw    $ra, 0($sp)        # Save return address
+    
+    jal draw_current
+    jal draw_nxt
+    
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4         # Pop stack
+    
+    jr $ra
+
+reuse_old_next:
+    addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
+    sw    $ra, 0($sp)        # Save return address
+    
     lw $s1, capsule_color1  # Load left side of capsule color
     lw $s2, capsule_color2  # Load right side of capsule color
-
-    add $t4, $s1, $s2       # Check if both are zero
+    move $s1, $s3
+    move $s2, $s4
+    # Compute the memory address from (x, y)
+    lw $a2, capsule_x       # X-coordinate (column)
+    lw $a3, capsule_y       # Y-coordinate (row)
+    li $s5, 0
     
+    jal draw_cap
+    
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4         # Pop stack
+    
+    jr $ra
+    
+draw_current:
+    addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
+    sw    $ra, 0($sp)        # Save return address
+    
+    lw $s1, capsule_color1  # Load left side of capsule color
+    lw $s2, capsule_color2  # Load right side of capsule color
+    # Compute the memory address from (x, y)
+    lw $a2, capsule_x       # X-coordinate (column)
+    lw $a3, capsule_y       # Y-coordinate (row)
+    li $s5, 0
+    
+    jal draw_cap
+    
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4         # Pop stack
+    
+    jr $ra
+
+draw_nxt:
+    addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
+    sw    $ra, 0($sp)        # Save return address
+    
+    lw $s1, next_capsule_color1  # Load left side of capsule color
+    lw $s2, next_capsule_color2  # Load right side of capsule color
+    # Compute the memory address from (x, y)
+    li $a2, 22       # X-coordinate (column)
+    li $a3, 5       # Y-coordinate (row)
+    li $s5, 1
+    
+    jal draw_cap
+    
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4         # Pop stack
+    
+    jr $ra
+
+draw_cap:
+    # Load stored capsule colors
+    add $t4, $s1, $s2       # Check if both are zero
     beq $t4, 0, randomize_capsule  # If both are zero, randomize a new capsule
 
     # Load base address of display
     lw $t0, ADDR_DSPL 
-
-    # Compute the memory address from (x, y)
-    lw $a2, capsule_x       # X-coordinate (column)
-    lw $a3, capsule_y       # Y-coordinate (row)
 
     mul $t2, $a2, 4         # x (column) * 4 (column offset)
     mul $t3, $a3, 128       # y (row) * 128 (row offset)
@@ -1257,8 +1337,8 @@ randomize_capsule:
     lw $t7, COLOR_BLACK    
 
     # Compute the memory address from (x, y)
-    lw $a2, capsule_x      
-    lw $a3, capsule_y      
+    # lw $a2, capsule_x      
+    # lw $a3, capsule_y      
 
     mul $t2, $a2, 4        
     mul $t3, $a3, 128      
@@ -1305,23 +1385,37 @@ right_capsule_colour:
 pick_right_blue:
     sw $t8, 4($t4)        
     move $s2, $t8        
-    j store_capsule_colors 
+    # j store_capsule_colors 
+    beq $s5, 0, store_capsule_colors
+    beq $s5, 1, store_nextcapsule_colors
 
 pick_right_red:
     sw $t9, 4($t4)        
-    move $s2, $t9        
-    j store_capsule_colors 
+    move $s2, $t9
+    beq $s5, 0, store_capsule_colors
+    beq $s5, 1, store_nextcapsule_colors
+    # j store_capsule_colors 
 
 pick_right_yellow:
     sw $t6, 4($t4)        
-    move $s2, $t6        
+    move $s2, $t6 
+    beq $s5, 0, store_capsule_colors
+    beq $s5, 1, store_nextcapsule_colors
 
 store_capsule_colors:
     # Store colors in global variables for next check
     sw $s1, capsule_color1
     sw $s2, capsule_color2
-    jr $ra 
-    
+    jr $ra
+
+store_nextcapsule_colors:
+    # Store colors in global variables for next check
+    sw $s1, next_capsule_color1
+    sw $s2, next_capsule_color2
+    jr $ra
+
+
+ 
 #####################################
 # Keyboard Input and Control Handlers
 #####################################
@@ -1398,7 +1492,7 @@ respond_to_A: # Move left
     sw $t6, capsule_x       # Store updated x position
     
     # Then redraw capsule at new position
-    jal draw_start_capsule
+    jal draw_curr
     j game_loop
     
     left_vert_A:
@@ -1408,7 +1502,7 @@ respond_to_A: # Move left
         sw $t6, capsule_x       # Store updated x position
     
         # Then redraw capsule at new position
-        jal draw_start_capsule
+        jal draw_curr
         j game_loop
  
 respond_to_S: #move capsule down when S is pressed
@@ -1427,7 +1521,8 @@ respond_to_S: #move capsule down when S is pressed
     sw $t1, capsule_y       # Store updated y position
     
     # Then redraw capsule at new position
-    jal draw_start_capsule
+    # jal draw_start_capsule
+    jal draw_curr
     j game_loop
     
     down_vert_S:
@@ -1438,10 +1533,12 @@ respond_to_S: #move capsule down when S is pressed
         sw $t1, capsule_y       # Store updated y position
     
         # Then redraw capsule at new position
-        jal draw_start_capsule
+        # jal draw_start_capsule
+        jal draw_curr
         j game_loop
 
 redraw_capsules:
+
     lw $t2, capsule_y        # Load current y position
     # li $t4, 480              # Assuming 480 is the bottom of the screen
     # bne $t2, $t4, game_loop  # If not at the bottom, continue game
@@ -1461,6 +1558,7 @@ redraw_capsules:
     sw $t6, capsule_color1
     sw $t6, capsule_color2
     
+    jal reset_next
     li $s6, 1000
 
     j game_loop              # Continue game loop
@@ -1489,7 +1587,7 @@ respond_to_D:
     sw $t6, capsule_x       # Store updated x position
     
     # Then redraw capsule at new position
-    jal draw_start_capsule
+    jal draw_curr
     j game_loop
     
     right_vert_D:
@@ -1500,7 +1598,7 @@ respond_to_D:
         sw $t6, capsule_x       # Store updated x position
     
         # Then redraw capsule at new position
-        jal draw_start_capsule
+        jal draw_curr
         j game_loop     
     
 respond_to_X: # Rotate Right
@@ -1533,7 +1631,7 @@ horz_to_vert:
     sw $t3, capsule_color2
     
     sw $s4, capsule_orient
-    jal draw_start_capsule
+    jal draw_curr
     j game_loop
 
 vert_to_horz:
@@ -1544,7 +1642,7 @@ vert_to_horz:
     jal check_vertical
     beq $t4, 0, game_loop       # If out of bounds (t4 == 1), don't move
     sw $s4, capsule_orient
-    jal draw_start_capsule
+    jal draw_curr
     j game_loop
     
 respond_to_P:
