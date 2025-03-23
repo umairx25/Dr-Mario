@@ -1081,7 +1081,6 @@ calculate_offset:
 ##############################################################################
 # Draw the Medicine Bottle
 ##############################################################################
-#function to draw the starting screen
 draw_bottle:
     lw $t7, COLOUR_GREY             # $t7 = grey
     lw $t0, ADDR_DSPL               # $t0 = base address for display
@@ -1173,14 +1172,11 @@ check_lid_horz:
     slt $t3, $t7, 12
     and $t4, $t2, $t3
    
-    # Return directly without looping
     lw $ra, 0($sp)    
     addi $sp, $sp, 4  
     jr $ra
 
 check_reg_horz:
-
-    #t2, t3, t4
    addi $sp, $sp, -4       # Move stack pointer
    sw $ra, 0($sp)          # Save $ra on stack
    lw $t5, capsule_orient
@@ -1190,7 +1186,6 @@ check_reg_horz:
    slt $t3, $t7, 16
    and $t4, $t2, $t3
    
-   # Return directly without looping
     lw $ra, 0($sp)    
     addi $sp, $sp, 4  
     jr $ra
@@ -1200,7 +1195,6 @@ check_reg_horz:
     slt $t3, $t7, 17
     and $t4, $t2, $t3
    
-   # Return directly without looping
     lw $ra, 0($sp)    
     addi $sp, $sp, 4  
     jr $ra
@@ -1214,7 +1208,7 @@ check_vertical:
    sgt $t2, $t1, 1
    slt $t3, $t1, 28
    and $t4, $t2, $t3
-   # bnez $t4, reset_next
+   beqz $t4, reset_next
    
    addi $sp, $sp, -4       # Move stack pointer
    sw $ra, 0($sp)          # Save $ra on stack
@@ -1237,7 +1231,6 @@ reset_next:
 #####################################
 
 draw_curr:
-    
     lw $s3, next_capsule_color1
     lw $s4, next_capsule_color2
     add $t4, $s3, $s4
@@ -1674,6 +1667,7 @@ check_p:
     beq $t2, $t3, unpause    # Unpause if p was pressed, otherwise loop back
     j respond_to_P           # This prevents any other key from being presßsed while paused
 pause:
+    jal pause_sound
     addi $t6, $t6, 1
     sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 1  
     lw $t7, COLOR_WHITE
@@ -1684,6 +1678,7 @@ pause:
     sw $t7, 140($t8)
     j respond_to_P
 unpause:
+    jal pause_sound
     addi $t6, $t6, -1
     sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 0
     lw $t7, COLOR_BLACK
@@ -1747,7 +1742,7 @@ init_viruses:
     addi $sp, $sp, -4       # Move stack pointer
     sw $ra, 0($sp)          # Save $ra on stack
 init_virus_loop:
-    beq $t9, 5 , init_virus_done # set the number of viruses
+    beq $t9, 4 , init_virus_done # set the number of viruses
     
     # Random x coordinate between 0 and BOARD_WIDTH-1
     li $v0, 42
@@ -1821,6 +1816,38 @@ plink_sound:
     lw $ra, 0($sp)    
     addi $sp, $sp, 4  
     jr $ra
+
+pause_sound:
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+
+    li $v0, 31     # MIDI Sound Syscall
+    li $a0, 80     # Pitch (Middle C)
+    li $a1, 10   # Duration in ms
+    li $a2, 80      # Instrument (Piano)
+    li $a3, 127    # Volume (Max)
+    syscall
+    
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
+
+game_over_sound:
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+    
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
+
+you_win_sound:
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+  
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
+
 
     
     
