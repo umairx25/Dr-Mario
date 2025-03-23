@@ -16,6 +16,851 @@
 ##############################################################################
 
     .data
+dr_mario_theme:
+.word 85, 0
+.word 85, 245
+.word 85, 156
+.word 85, 234
+.word 85, 156
+.word 85, 246
+.word 86, 824
+.word 88, 481
+.word 86, 33
+.word 88, 223
+.word 88, 156
+.word 85, 379
+.word 85, 268
+.word 86, 200
+.word 86, 190
+.word 85, 135
+.word 85, 245
+.word 86, 847
+.word 86, 178
+.word 86, 212
+.word 88, 100
+.word 88, 392
+.word 88, 234
+.word 85, 134
+.word 85, 267
+.word 85, 167
+.word 85, 234
+.word 81, 134
+.word 81, 267
+.word 81, 145
+.word 86, 670
+.word 86, 402
+.word 88, 100
+.word 88, 245
+.word 88, 156
+.word 85, 368
+.word 85, 258
+.word 86, 144
+.word 86, 246
+.word 85, 156
+.word 85, 245
+.word 38, 914
+.word 37, 402
+.word 35, 491
+.word 85, 289
+.word 33, 0
+.word 57, 12
+.word 37, 267
+.word 85, 11
+.word 37, 123
+.word 88, 56
+.word 88, 133
+.word 81, 78
+.word 30, 113
+.word 81, 22
+.word 33, 368
+.word 45, 11
+.word 33, 156
+.word 90, 535
+.word 30, 167
+.word 90, 223
+.word 88, 101
+.word 28, 100
+.word 88, 89
+.word 32, 169
+.word 85, 33
+.word 83, 290
+.word 45, 89
+.word 85, 11
+.word 57, 0
+.word 33, 22
+.word 88, 357
+.word 37, 89
+.word 88, 56
+.word 81, 167
+.word 88, 11
+.word 30, 112
+.word 45, 368
+.word 33, 33
+.word 33, 134
+.word 30, 447
+.word 81, 78
+.word 30, 78
+.word 28, 379
+.word 80, 33
+.word 32, 368
+.word 83, 22
+.word 81, 301
+.word 85, 89
+.word 57, 0
+.word 45, 0
+.word 33, 0
+.word 85, 269
+.word 37, 67
+.word 88, 45
+.word 37, 89
+.word 88, 55
+.word 81, 168
+.word 30, 111
+.word 33, 368
+.word 33, 178
+.word 45, 45
+.word 81, 468
+.word 30, 89
+.word 90, 291
+.word 88, 112
+.word 28, 122
+.word 88, 11
+.word 32, 246
+.word 85, 22
+.word 51, 0
+.word 83, 290
+.word 81, 100
+.word 85, 11
+.word 57, 0
+.word 33, 22
+.word 81, 234
+.word 37, 67
+.word 81, 123
+.word 37, 22
+.word 81, 190
+.word 42, 122
+.word 36, 380
+.word 35, 391
+.word 86, 66
+.word 41, 346
+.word 40, 401
+.word 83, 56
+.word 64, 67
+.word 40, 22
+.word 34, 212
+.word 85, 402
+.word 45, 0
+.word 57, 11
+.word 33, 134
+.word 85, 145
+.word 37, 56
+.word 88, 122
+.word 37, 23
+.word 88, 111
+.word 81, 89
+.word 30, 123
+.word 81, 11
+.word 33, 401
+.word 33, 134
+.word 45, 45
+.word 90, 480
+.word 30, 11
+.word 30, 156
+.word 90, 223
+.word 88, 101
+.word 28, 100
+.word 32, 278
+.word 85, 12
+.word 83, 289
+.word 45, 101
+.word 33, 0
+.word 85, 11
+.word 57, 11
+.word 85, 256
+.word 37, 46
+.word 88, 56
+.word 37, 89
+.word 88, 56
+.word 81, 167
+.word 88, 11
+.word 30, 89
+.word 33, 424
+.word 45, 100
+.word 33, 34
+.word 81, 535
+.word 30, 167
+.word 28, 280
+.word 80, 33
+.word 32, 379
+.word 83, 11
+.word 81, 290
+.word 85, 89
+.word 57, 11
+.word 45, 0
+.word 33, 45
+.word 85, 234
+.word 40, 134
+.word 88, 111
+.word 81, 156
+.word 37, 112
+.word 81, 22
+.word 33, 324
+.word 33, 212
+.word 45, 22
+.word 38, 201
+.word 81, 301
+.word 42, 100
+.word 80, 390
+.word 52, 0
+.word 40, 0
+.word 81, 212
+.word 32, 167
+.word 83, 23
+.word 81, 380
+.word 57, 0
+.word 33, 11
+.word 85, 22
+.word 81, 101
+.word 33, 22
+.word 81, 111
+.word 57, 134
+.word 33, 56
+.word 81, 11
+.word 81, 201
+.word 35, 100
+.word 86, 56
+.word 81, 66
+.word 35, 34
+.word 81, 156
+.word 47, 56
+.word 35, 133
+.word 81, 45
+.word 47, 167
+.word 36, 100
+.word 87, 34
+.word 36, 358
+.word 37, 401
+.word 88, 100
+.word 37, 156
+.word 37, 212
+.word 49, 201
+.word 93, 412
+.word 30, 78
+.word 81, 13
+.word 90, 378
+.word 45, 12
+.word 83, 55
+.word 33, 45
+.word 47, 301
+.word 35, 11
+.word 86, 100
+.word 86, 145
+.word 36, 212
+.word 86, 45
+.word 86, 144
+.word 47, 134
+.word 35, 0
+.word 81, 34
+.word 88, 89
+.word 90, 134
+.word 52, 79
+.word 45, 33
+.word 64, 23
+.word 90, 11
+.word 83, 55
+.word 33, 23
+.word 30, 278
+.word 81, 45
+.word 45, 357
+.word 33, 0
+.word 33, 156
+.word 57, 133
+.word 85, 12
+.word 76, 189
+.word 37, 0
+.word 85, 312
+.word 40, 0
+.word 78, 45
+.word 85, 223
+.word 42, 123
+.word 86, 112
+.word 86, 145
+.word 88, 122
+.word 43, 0
+.word 88, 134
+.word 88, 145
+.word 76, 145
+.word 42, 0
+.word 40, 379
+.word 78, 56
+.word 76, 378
+.word 37, 34
+.word 33, 146
+.word 93, 457
+.word 30, 100
+.word 81, 11
+.word 30, 157
+.word 90, 222
+.word 45, 0
+.word 33, 12
+.word 83, 55
+.word 90, 67
+.word 90, 134
+.word 86, 123
+.word 47, 22
+.word 35, 0
+.word 86, 111
+.word 86, 134
+.word 86, 134
+.word 36, 78
+.word 86, 190
+.word 47, 134
+.word 35, 0
+.word 81, 34
+.word 88, 78
+.word 90, 145
+.word 45, 111
+.word 33, 0
+.word 90, 33
+.word 83, 0
+.word 64, 0
+.word 30, 368
+.word 81, 34
+.word 88, 368
+.word 40, 11
+.word 88, 122
+.word 88, 134
+.word 32, 111
+.word 39, 12
+.word 88, 66
+.word 88, 191
+.word 35, 56
+.word 88, 145
+.word 35, 22
+.word 35, 178
+.word 88, 123
+.word 32, 11
+.word 88, 123
+.word 36, 256
+.word 88, 11
+.word 36, 123
+.word 88, 11
+.word 88, 167
+.word 88, 156
+.word 88, 223
+.word 82, 358
+.word 85, 524
+.word 57, 0
+.word 45, 0
+.word 33, 11
+.word 85, 134
+.word 37, 122
+.word 85, 12
+.word 88, 111
+.word 37, 11
+.word 88, 134
+.word 81, 145
+.word 30, 122
+.word 33, 369
+.word 83, 703
+.word 30, 178
+.word 81, 223
+.word 30, 0
+.word 47, 89
+.word 83, 11
+.word 28, 112
+.word 32, 256
+.word 86, 78
+.word 88, 234
+.word 85, 90
+.word 57, 0
+.word 33, 0
+.word 37, 268
+.word 85, 11
+.word 81, 100
+.word 37, 23
+.word 81, 122
+.word 76, 179
+.word 30, 100
+.word 33, 423
+.word 83, 637
+.word 30, 89
+.word 81, 323
+.word 28, 45
+.word 83, 33
+.word 32, 390
+.word 86, 0
+.word 86, 145
+.word 88, 168
+.word 85, 100
+.word 57, 0
+.word 33, 67
+.word 85, 67
+.word 85, 144
+.word 88, 101
+.word 37, 22
+.word 88, 123
+.word 88, 179
+.word 81, 67
+.word 30, 22
+.word 81, 257
+.word 33, 111
+.word 81, 714
+.word 30, 167
+.word 81, 189
+.word 80, 134
+.word 28, 89
+.word 81, 202
+.word 32, 78
+.word 83, 22
+.word 81, 279
+.word 31, 100
+.word 81, 134
+.word 81, 145
+.word 81, 256
+.word 81, 134
+.word 81, 134
+.word 31, 0
+.word 81, 289
+.word 31, 90
+.word 26, 982
+.word 45, 602
+.word 85, 401
+.word 57, 0
+.word 45, 0
+.word 33, 0
+.word 85, 257
+.word 37, 56
+.word 88, 56
+.word 37, 89
+.word 88, 56
+.word 81, 145
+.word 30, 122
+.word 33, 379
+.word 33, 178
+.word 90, 524
+.word 30, 68
+.word 90, 313
+.word 88, 100
+.word 28, 111
+.word 88, 23
+.word 86, 156
+.word 32, 78
+.word 51, 33
+.word 85, 123
+.word 83, 167
+.word 85, 100
+.word 57, 11
+.word 33, 67
+.word 45, 45
+.word 85, 156
+.word 88, 122
+.word 37, 0
+.word 88, 190
+.word 81, 101
+.word 30, 123
+.word 33, 357
+.word 45, 234
+.word 81, 468
+.word 30, 78
+.word 80, 412
+.word 28, 112
+.word 81, 100
+.word 32, 157
+.word 83, 23
+.word 81, 256
+.word 33, 123
+.word 85, 11
+.word 57, 0
+.word 81, 11
+.word 45, 167
+.word 85, 100
+.word 88, 123
+.word 37, 0
+.word 88, 178
+.word 81, 112
+.word 30, 100
+.word 33, 379
+.word 33, 178
+.word 81, 525
+.word 30, 168
+.word 90, 211
+.word 28, 78
+.word 88, 11
+.word 88, 145
+.word 32, 246
+.word 85, 33
+.word 83, 279
+.word 33, 89
+.word 81, 22
+.word 57, 0
+.word 85, 34
+.word 81, 224
+.word 37, 122
+.word 81, 134
+.word 81, 134
+.word 42, 122
+.word 36, 402
+.word 35, 379
+.word 86, 66
+.word 41, 357
+.word 40, 380
+.word 83, 56
+.word 64, 67
+.word 40, 11
+.word 34, 223
+.word 85, 412
+.word 33, 23
+.word 57, 44
+.word 33, 89
+.word 85, 134
+.word 37, 112
+.word 88, 11
+.word 88, 189
+.word 81, 89
+.word 30, 112
+.word 81, 12
+.word 45, 379
+.word 33, 34
+.word 33, 133
+.word 90, 524
+.word 30, 78
+.word 90, 312
+.word 88, 101
+.word 28, 111
+.word 32, 258
+.word 85, 22
+.word 83, 290
+.word 45, 89
+.word 85, 11
+.word 57, 33
+.word 33, 78
+.word 85, 23
+.word 85, 145
+.word 37, 111
+.word 88, 67
+.word 88, 134
+.word 81, 111
+.word 30, 112
+.word 33, 356
+.word 45, 11
+.word 33, 168
+.word 81, 525
+.word 30, 78
+.word 80, 412
+.word 28, 100
+.word 32, 279
+.word 83, 22
+.word 81, 257
+.word 85, 122
+.word 57, 0
+.word 81, 23
+.word 33, 78
+.word 85, 168
+.word 88, 111
+.word 40, 23
+.word 88, 122
+.word 81, 168
+.word 88, 11
+.word 37, 78
+.word 33, 434
+.word 33, 134
+.word 45, 56
+.word 38, 156
+.word 81, 323
+.word 42, 89
+.word 52, 380
+.word 40, 0
+.word 81, 23
+.word 81, 278
+.word 32, 90
+.word 83, 11
+.word 81, 390
+.word 33, 33
+.word 85, 0
+.word 57, 23
+.word 81, 78
+.word 33, 33
+.word 81, 111
+.word 33, 123
+.word 57, 11
+.word 81, 56
+.word 81, 201
+.word 35, 100
+.word 86, 56
+.word 81, 68
+.word 35, 22
+.word 81, 156
+.word 47, 111
+.word 35, 90
+.word 81, 33
+.word 47, 167
+.word 36, 78
+.word 87, 56
+.word 36, 368
+.word 37, 379
+.word 88, 122
+.word 37, 168
+.word 37, 190
+.word 49, 212
+.word 93, 401
+.word 30, 89
+.word 81, 34
+.word 90, 368
+.word 45, 0
+.word 33, 11
+.word 83, 44
+.word 90, 78
+.word 90, 134
+.word 86, 123
+.word 47, 11
+.word 35, 11
+.word 86, 112
+.word 86, 133
+.word 36, 191
+.word 86, 67
+.word 86, 134
+.word 88, 133
+.word 47, 11
+.word 35, 0
+.word 81, 34
+.word 90, 245
+.word 52, 22
+.word 45, 67
+.word 33, 0
+.word 83, 34
+.word 64, 0
+.word 90, 67
+.word 81, 334
+.word 30, 11
+.word 45, 346
+.word 33, 100
+.word 57, 189
+.word 85, 23
+.word 85, 168
+.word 76, 0
+.word 37, 0
+.word 85, 312
+.word 40, 0
+.word 78, 56
+.word 85, 212
+.word 42, 145
+.word 86, 111
+.word 86, 134
+.word 88, 122
+.word 43, 12
+.word 88, 133
+.word 88, 134
+.word 42, 145
+.word 76, 0
+.word 40, 369
+.word 78, 67
+.word 37, 323
+.word 76, 33
+.word 93, 658
+.word 30, 100
+.word 81, 145
+.word 30, 23
+.word 90, 222
+.word 45, 0
+.word 33, 0
+.word 83, 67
+.word 90, 67
+.word 90, 146
+.word 86, 112
+.word 47, 11
+.word 35, 11
+.word 86, 245
+.word 86, 134
+.word 36, 0
+.word 86, 268
+.word 47, 133
+.word 35, 11
+.word 81, 12
+.word 88, 100
+.word 90, 134
+.word 45, 122
+.word 33, 0
+.word 83, 23
+.word 64, 0
+.word 90, 11
+.word 30, 356
+.word 81, 34
+.word 88, 358
+.word 40, 11
+.word 88, 178
+.word 88, 212
+.word 32, 0
+.word 88, 256
+.word 35, 67
+.word 35, 156
+.word 88, 45
+.word 35, 156
+.word 88, 100
+.word 32, 22
+.word 88, 246
+.word 36, 111
+.word 88, 22
+.word 36, 102
+.word 88, 200
+.word 88, 145
+.word 88, 223
+.word 82, 368
+.word 84, 268
+.word 85, 256
+.word 57, 11
+.word 45, 0
+.word 33, 11
+.word 85, 123
+.word 85, 145
+.word 88, 100
+.word 37, 11
+.word 88, 124
+.word 30, 0
+.word 88, 178
+.word 81, 0
+.word 30, 90
+.word 33, 434
+.word 83, 658
+.word 30, 78
+.word 81, 312
+.word 28, 57
+.word 83, 22
+.word 32, 379
+.word 86, 0
+.word 86, 145
+.word 88, 178
+.word 85, 89
+.word 57, 0
+.word 33, 112
+.word 85, 167
+.word 81, 123
+.word 37, 0
+.word 81, 133
+.word 76, 168
+.word 30, 122
+.word 33, 358
+.word 83, 691
+.word 30, 178
+.word 81, 212
+.word 83, 112
+.word 28, 89
+.word 85, 178
+.word 32, 100
+.word 86, 145
+.word 88, 158
+.word 85, 100
+.word 57, 0
+.word 33, 89
+.word 85, 190
+.word 37, 122
+.word 88, 123
+.word 88, 145
+.word 30, 111
+.word 88, 22
+.word 81, 0
+.word 54, 0
+.word 81, 268
+.word 33, 156
+.word 81, 759
+.word 30, 56
+.word 30, 234
+.word 80, 89
+.word 28, 100
+.word 81, 112
+.word 32, 167
+.word 83, 22
+.word 31, 379
+.word 81, 11
+.word 81, 134
+.word 81, 134
+.word 81, 145
+.word 81, 157
+.word 81, 145
+.word 31, 67
+.word 81, 111
+.word 81, 190
+.word 31, 78
+.word 26, 1259
+.word 33, 704
+.word 45, 11
+.word 85, 11
+.word 57, 0
+.word 85, 134
+.word 85, 133
+.word 88, 112
+.word 37, 11
+.word 88, 134
+.word 81, 167
+.word 88, 11
+.word 30, 112
+.word 33, 356
+.word 90, 704
+.word 30, 78
+.word 90, 312
+.word 88, 89
+.word 28, 122
+.word 88, 12
+.word 32, 256
+.word 85, 11
+.word 83, 290
+.word 33, 90
+.word 85, 11
+.word 57, 23
+.word 33, 100
+.word 45, 0
+.word 85, 145
+.word 37, 123
+.word 88, 122
+.word 81, 178
+.word 30, 90
+.word 33, 390
+.word 45, 234
+.word 81, 447
+.word 30, 178
+.word 28, 279
+.word 80, 33
+.word 81, 290
+.word 32, 100
+.word 83, 11
+.word 81, 301
+.word 85, 90
+.word 33, 0
+.word 57, 11
+.word 33, 133
+.word 45, 0
+.word 85, 145
+.word 37, 112
+.word 88, 11
+.word 88, 189
+.word 81, 80
+.word 30, 100
+.word 33, 401
+.word 81, 691
+.word 30, 89
+.word 90, 301
+.word 28, 78
+.word 88, 34
+.word 32, 369
+.word 85, 11
+.word 83, 279
+.word 33, 100
+.word 81, 22
+.word 57, 11
+.word 45, 123
+.word 81, 134
+.word 37, 122
+.word 81, 11
+.word 81, 268
+.word 42, 123
+.word 36, 379
+.word 35, 380
+.word 86, 78
+.word 41, 345
+.word -1, -1        # Add this as the LAST entry to mark end-of-song
+MUSIC_LOADED: .word 0
+last_note_time: .word 0     # Store time of last note played
+current_note:   .word 0     # Current position in the music array
 ##############################################################################
 # Immutable Data
 ##############################################################################
@@ -96,17 +941,6 @@ is_colour_set:  .word 4
 	.text
 	.globl main
 
-
-
-# loop:
-    # li $a0, 1000       # Sleep for 1 second
-    # li $v0, 32         # Syscall for sleep
-    # syscall            
-
-    # addi $t1, $t1, 1   # Increment counter
-    # j loop             # Repeat
-    # # Run the game.
-    
 main:
     li $t1, 0
     li $s6, 1000 # gradual speed increase
@@ -126,11 +960,6 @@ game_loop:
 	# 2b. Update locations (capsules)
     jal key_check
     
-    # 4. Sleep
-    # li $a0, 100       # Sleep for 1 second
-    # li $v0, 32         # Syscall for sleep
-    # syscall
-    # j respond_to_S
     li $a0, 16             # Sleep for ~16ms (1/60th second)
     li $v0, 32             # Syscall for sleep
     move $a0, $zero  # Store time as seed
@@ -142,16 +971,14 @@ game_loop:
 exit:
     li $v0, 10             # Terminate the program gracefully
     syscall
-    
-# play_sound:
-    # li $v0, 31          # Syscall for playing audio
-    # la $a0, filename    # Load the address of the filename
-    # syscall             # Play the sound
-    # jr $ra
-
+  
 
 #function to draw the starting screen
 draw_bottle:
+    li $t9, 0           # virus counter
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+    
     lw $t7, COLOUR_GREY     # $t7 = grey
     lw $t0, ADDR_DSPL       # $t0 = base address for display
     
@@ -226,7 +1053,10 @@ draw_lid:
     sw $t7, 436($t4) # bottom right
     sw $t7, 288($t4) # top left
     sw $t7, 308($t4) # top right 
-    jr $ra  # saves the line address to register 31
+  
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
 
 check_horz:
     sgt $t2, $t1, 1
@@ -241,11 +1071,6 @@ check_lid_horz:
     addi $sp, $sp, -4       # Move stack pointer
     sw $ra, 0($sp)          # Save $ra on stack
 
-   # lw $t6, capsule_x       # Load current x position (column)
-    # lw $t1, capsule_y       # Load current y position
-    
-    # mul $t6, $t6, 4         # x (column) * 4 (column offset)
-    # mul $t1, $t1, 128       # y (row) * 128 (row offset)
    sgt $t2, $t7, 8
    slt $t3, $t7, 12
    and $t4, $t2, $t3
@@ -424,6 +1249,7 @@ key_check:
   	li 		$v0, 32
 	li 		$a0, 1
 	syscall
+    
 
     lw $t0, ADDR_KBRD               # $t0 = base address for keyboard
     lw $t1, 0($t0)                  # Load first word from keyboard (key state)
@@ -436,7 +1262,7 @@ key_check:
     addi $s6, $s6, -40
     j respond_to_S
     j key_check
-    
+
 keyboard_input:                     # A key is pressed
     lw $t2, 4($t0)                  # Load second word from keyboard into $t2 (actual key pressed)
     lw $t5, capsule_orient
@@ -471,6 +1297,7 @@ respond_to_Q: # Quit Game
     j exit
 
 respond_to_A: # Move left
+    jal plink_sound
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
     lw $t0, ADDR_DSPL       # Load base address of display
@@ -510,6 +1337,7 @@ respond_to_A: # Move left
         j game_loop
  
 respond_to_S:
+    jal plink_sound
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current x position (column)
     lw $t0, ADDR_DSPL       # Load base address of display
@@ -544,6 +1372,7 @@ respond_to_S:
         j game_loop
     
 respond_to_D:
+    jal plink_sound
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
     lw $t0, ADDR_DSPL       # Load base address of display
@@ -589,6 +1418,7 @@ respond_to_Z: # Rotate Left
     j key_check
 
 respond_to_W:
+    jal plink_sound
     lw $s4, capsule_orient 
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
@@ -725,7 +1555,8 @@ init_viruses:
     addi $sp, $sp, -4       # Move stack pointer
     sw $ra, 0($sp)          # Save $ra on stack
 init_virus_loop:
-    beq $t9, 4, init_virus_done
+    beq $t9, 5 , init_virus_done # set the number of viruses
+    
     # Random x coordinate between 0 and BOARD_WIDTH-1
     li $v0, 42
     lw $a1, BOARD_WIDTH
@@ -739,15 +1570,15 @@ init_virus_loop:
     mflo $t3                # $t3 = BOARD_HEIGHT/2
     move $t4, $t3           # keep for further use
     li   $v0, 42            # Syscall for random number (Saturn convention)
-    move   $a1, $t3
-    li $a0, 0               # reinitialize a0 to 0
+    move $a1, $t3
+    li   $a0, 0               # reinitialize a0 to 0
     syscall                 # Random y-coordinate is returned in $a0
-    add $s5, $t4, $a0
+    add  $s5, $t4, $a0
     
     # Get random color for virus (viruses encoded as 4,5,6)
     li $v0, 42
     li $a1, 3  # pick a number from 0 to (4-1) and we will add 4 to get 4-6
-    li $a0, 0               # reinitialize a0 to 0
+    li $a0, 0               # reinitialize a0 to 0 from prev syscall
     syscall
     addi $a0, $a0, 4
     jal get_color
@@ -758,18 +1589,46 @@ init_virus_loop:
     move $a0, $s4
     move $a1, $s5
     jal get_board_cell
-    bnez $v0, skip_virus_place
-  
-   
+    bnez $v0, skip_virus_place # skip if there is already a block there
+
+    move $a0, $s4  # x-coordinate
+    move $a1, $s5  # y-coordinate
+    move $a2, $t7  # virus color (4, 5, or 6)
+    jal set_board_cell  # Place the virus
+
+
+    mul $t2, $s4, 4         # x (column) * 4 (column offset)
+    mul $t3, $s5, 128       # y (row) * 128 (row offset)
+    add $t3, $t2, $t3       # total offset
+    lw $t0, ADDR_DSPL       # Load base address of display
+    add $t3, $t3, $t0       # final address = base + offset
+    sw $t7, 0($t3)          # draw virus to display
+    addi $t9, $t9, 1        # add 1 to virus counter
 skip_virus_place:
     j init_virus_loop
 init_virus_done:
     lw $ra, 0($sp)    
     addi $sp, $sp, 4  
     jr $ra
+
+
+#####################################
+# MUSIC
+#####################################
+plink_sound:
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+
+    li $v0, 31     # MIDI Sound Syscall
+    li $a0, 35     # Pitch (Middle C)
+    li $a1, 10   # Duration in ms
+    li $a2, 10      # Instrument (Piano)
+    li $a3, 127    # Volume (Max)
+    syscall
     
-
-
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
 
     
     
