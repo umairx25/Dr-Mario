@@ -123,13 +123,13 @@ number_0:  # 5x7 grid representing the number 0.
     .word 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
 
 number_1:  # 5x7 grid representing the number 0.
-    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
-    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
-    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
 
 number_2:  # 5x7 grid representing the number 0.
     .word 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
@@ -150,13 +150,13 @@ number_3:  # 5x7 grid representing the number 0.
     .word 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
 
 number_4:  # 5x7 grid representing the number 0.
-    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+    .word 0xFFFFFF, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0xFFFFFF, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0xFFFFFF, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
-    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
 
 number_5:  # 5x7 grid representing the number 0.
     .word 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
@@ -580,9 +580,6 @@ reset_next:
     addi $sp, $sp, -4       # Move stack pointer
     sw $ra, 0($sp)          # Save $ra on stack
    
-    li $v0, 1
-    li $a0, 777   # Debug print for reset_next
-    syscall
     li $t0, 0
     sw $t0, next_capsule_color1
     sw $t0, next_capsule_color2  
@@ -874,6 +871,7 @@ respond_to_A: # Move left
 respond_to_S: #move capsule down when S is pressed
     jal plink_sound
     
+    lw $t7, COLOR_BLACK
     lw $t6, score
     addi $t6, $t6, 1
     sw $t6, score
@@ -911,6 +909,8 @@ respond_to_S: #move capsule down when S is pressed
 
 redraw_capsules:
 
+    li $t2, 0
+    sw $t2, capsule_orient
     lw $t2, capsule_y        # Load current y position
     # li $t4, 480              # Assuming 480 is the bottom of the screen
     # bne $t2, $t4, game_loop  # If not at the bottom, continue game
@@ -934,7 +934,6 @@ redraw_capsules:
     li $s6, 1000
 
     j game_loop              # Continue game loop
-
     
 respond_to_D:
     jal plink_sound
@@ -981,6 +980,7 @@ respond_to_Z: # Rotate Left
 
 respond_to_W:
     jal plink_sound
+    lw $t7, COLOR_BLACK
     lw $s4, capsule_orient 
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
