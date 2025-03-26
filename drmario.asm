@@ -183,7 +183,7 @@ number_7:  # 5x7 grid representing the number 0.
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
-    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
 
 number_8: #general number grid, 0 locations are never used.
     .word 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
@@ -794,7 +794,7 @@ key_check:
     move $a0, $s6                   # Sleep for 1 second
     li $v0, 32                      # Syscall for sleep
     syscall
-    # addi $s6, $s6, -40
+    addi $s6, $s6, -20              #Accelerated gravity
     j respond_to_S
     j key_check
 
