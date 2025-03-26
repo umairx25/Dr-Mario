@@ -16,855 +16,14 @@
 ##############################################################################
 
     .data
-    
-dr_mario_theme:
-.word 85, 0
-.word 85, 245
-.word 85, 156
-.word 85, 234
-.word 85, 156
-.word 85, 246
-.word 86, 824
-.word 88, 481
-.word 86, 33
-.word 88, 223
-.word 88, 156
-.word 85, 379
-.word 85, 268
-.word 86, 200
-.word 86, 190
-.word 85, 135
-.word 85, 245
-.word 86, 847
-.word 86, 178
-.word 86, 212
-.word 88, 100
-.word 88, 392
-.word 88, 234
-.word 85, 134
-.word 85, 267
-.word 85, 167
-.word 85, 234
-.word 81, 134
-.word 81, 267
-.word 81, 145
-.word 86, 670
-.word 86, 402
-.word 88, 100
-.word 88, 245
-.word 88, 156
-.word 85, 368
-.word 85, 258
-.word 86, 144
-.word 86, 246
-.word 85, 156
-.word 85, 245
-.word 38, 914
-.word 37, 402
-.word 35, 491
-.word 85, 289
-.word 33, 0
-.word 57, 12
-.word 37, 267
-.word 85, 11
-.word 37, 123
-.word 88, 56
-.word 88, 133
-.word 81, 78
-.word 30, 113
-.word 81, 22
-.word 33, 368
-.word 45, 11
-.word 33, 156
-.word 90, 535
-.word 30, 167
-.word 90, 223
-.word 88, 101
-.word 28, 100
-.word 88, 89
-.word 32, 169
-.word 85, 33
-.word 83, 290
-.word 45, 89
-.word 85, 11
-.word 57, 0
-.word 33, 22
-.word 88, 357
-.word 37, 89
-.word 88, 56
-.word 81, 167
-.word 88, 11
-.word 30, 112
-.word 45, 368
-.word 33, 33
-.word 33, 134
-.word 30, 447
-.word 81, 78
-.word 30, 78
-.word 28, 379
-.word 80, 33
-.word 32, 368
-.word 83, 22
-.word 81, 301
-.word 85, 89
-.word 57, 0
-.word 45, 0
-.word 33, 0
-.word 85, 269
-.word 37, 67
-.word 88, 45
-.word 37, 89
-.word 88, 55
-.word 81, 168
-.word 30, 111
-.word 33, 368
-.word 33, 178
-.word 45, 45
-.word 81, 468
-.word 30, 89
-.word 90, 291
-.word 88, 112
-.word 28, 122
-.word 88, 11
-.word 32, 246
-.word 85, 22
-.word 51, 0
-.word 83, 290
-.word 81, 100
-.word 85, 11
-.word 57, 0
-.word 33, 22
-.word 81, 234
-.word 37, 67
-.word 81, 123
-.word 37, 22
-.word 81, 190
-.word 42, 122
-.word 36, 380
-.word 35, 391
-.word 86, 66
-.word 41, 346
-.word 40, 401
-.word 83, 56
-.word 64, 67
-.word 40, 22
-.word 34, 212
-.word 85, 402
-.word 45, 0
-.word 57, 11
-.word 33, 134
-.word 85, 145
-.word 37, 56
-.word 88, 122
-.word 37, 23
-.word 88, 111
-.word 81, 89
-.word 30, 123
-.word 81, 11
-.word 33, 401
-.word 33, 134
-.word 45, 45
-.word 90, 480
-.word 30, 11
-.word 30, 156
-.word 90, 223
-.word 88, 101
-.word 28, 100
-.word 32, 278
-.word 85, 12
-.word 83, 289
-.word 45, 101
-.word 33, 0
-.word 85, 11
-.word 57, 11
-.word 85, 256
-.word 37, 46
-.word 88, 56
-.word 37, 89
-.word 88, 56
-.word 81, 167
-.word 88, 11
-.word 30, 89
-.word 33, 424
-.word 45, 100
-.word 33, 34
-.word 81, 535
-.word 30, 167
-.word 28, 280
-.word 80, 33
-.word 32, 379
-.word 83, 11
-.word 81, 290
-.word 85, 89
-.word 57, 11
-.word 45, 0
-.word 33, 45
-.word 85, 234
-.word 40, 134
-.word 88, 111
-.word 81, 156
-.word 37, 112
-.word 81, 22
-.word 33, 324
-.word 33, 212
-.word 45, 22
-.word 38, 201
-.word 81, 301
-.word 42, 100
-.word 80, 390
-.word 52, 0
-.word 40, 0
-.word 81, 212
-.word 32, 167
-.word 83, 23
-.word 81, 380
-.word 57, 0
-.word 33, 11
-.word 85, 22
-.word 81, 101
-.word 33, 22
-.word 81, 111
-.word 57, 134
-.word 33, 56
-.word 81, 11
-.word 81, 201
-.word 35, 100
-.word 86, 56
-.word 81, 66
-.word 35, 34
-.word 81, 156
-.word 47, 56
-.word 35, 133
-.word 81, 45
-.word 47, 167
-.word 36, 100
-.word 87, 34
-.word 36, 358
-.word 37, 401
-.word 88, 100
-.word 37, 156
-.word 37, 212
-.word 49, 201
-.word 93, 412
-.word 30, 78
-.word 81, 13
-.word 90, 378
-.word 45, 12
-.word 83, 55
-.word 33, 45
-.word 47, 301
-.word 35, 11
-.word 86, 100
-.word 86, 145
-.word 36, 212
-.word 86, 45
-.word 86, 144
-.word 47, 134
-.word 35, 0
-.word 81, 34
-.word 88, 89
-.word 90, 134
-.word 52, 79
-.word 45, 33
-.word 64, 23
-.word 90, 11
-.word 83, 55
-.word 33, 23
-.word 30, 278
-.word 81, 45
-.word 45, 357
-.word 33, 0
-.word 33, 156
-.word 57, 133
-.word 85, 12
-.word 76, 189
-.word 37, 0
-.word 85, 312
-.word 40, 0
-.word 78, 45
-.word 85, 223
-.word 42, 123
-.word 86, 112
-.word 86, 145
-.word 88, 122
-.word 43, 0
-.word 88, 134
-.word 88, 145
-.word 76, 145
-.word 42, 0
-.word 40, 379
-.word 78, 56
-.word 76, 378
-.word 37, 34
-.word 33, 146
-.word 93, 457
-.word 30, 100
-.word 81, 11
-.word 30, 157
-.word 90, 222
-.word 45, 0
-.word 33, 12
-.word 83, 55
-.word 90, 67
-.word 90, 134
-.word 86, 123
-.word 47, 22
-.word 35, 0
-.word 86, 111
-.word 86, 134
-.word 86, 134
-.word 36, 78
-.word 86, 190
-.word 47, 134
-.word 35, 0
-.word 81, 34
-.word 88, 78
-.word 90, 145
-.word 45, 111
-.word 33, 0
-.word 90, 33
-.word 83, 0
-.word 64, 0
-.word 30, 368
-.word 81, 34
-.word 88, 368
-.word 40, 11
-.word 88, 122
-.word 88, 134
-.word 32, 111
-.word 39, 12
-.word 88, 66
-.word 88, 191
-.word 35, 56
-.word 88, 145
-.word 35, 22
-.word 35, 178
-.word 88, 123
-.word 32, 11
-.word 88, 123
-.word 36, 256
-.word 88, 11
-.word 36, 123
-.word 88, 11
-.word 88, 167
-.word 88, 156
-.word 88, 223
-.word 82, 358
-.word 85, 524
-.word 57, 0
-.word 45, 0
-.word 33, 11
-.word 85, 134
-.word 37, 122
-.word 85, 12
-.word 88, 111
-.word 37, 11
-.word 88, 134
-.word 81, 145
-.word 30, 122
-.word 33, 369
-.word 83, 703
-.word 30, 178
-.word 81, 223
-.word 30, 0
-.word 47, 89
-.word 83, 11
-.word 28, 112
-.word 32, 256
-.word 86, 78
-.word 88, 234
-.word 85, 90
-.word 57, 0
-.word 33, 0
-.word 37, 268
-.word 85, 11
-.word 81, 100
-.word 37, 23
-.word 81, 122
-.word 76, 179
-.word 30, 100
-.word 33, 423
-.word 83, 637
-.word 30, 89
-.word 81, 323
-.word 28, 45
-.word 83, 33
-.word 32, 390
-.word 86, 0
-.word 86, 145
-.word 88, 168
-.word 85, 100
-.word 57, 0
-.word 33, 67
-.word 85, 67
-.word 85, 144
-.word 88, 101
-.word 37, 22
-.word 88, 123
-.word 88, 179
-.word 81, 67
-.word 30, 22
-.word 81, 257
-.word 33, 111
-.word 81, 714
-.word 30, 167
-.word 81, 189
-.word 80, 134
-.word 28, 89
-.word 81, 202
-.word 32, 78
-.word 83, 22
-.word 81, 279
-.word 31, 100
-.word 81, 134
-.word 81, 145
-.word 81, 256
-.word 81, 134
-.word 81, 134
-.word 31, 0
-.word 81, 289
-.word 31, 90
-.word 26, 982
-.word 45, 602
-.word 85, 401
-.word 57, 0
-.word 45, 0
-.word 33, 0
-.word 85, 257
-.word 37, 56
-.word 88, 56
-.word 37, 89
-.word 88, 56
-.word 81, 145
-.word 30, 122
-.word 33, 379
-.word 33, 178
-.word 90, 524
-.word 30, 68
-.word 90, 313
-.word 88, 100
-.word 28, 111
-.word 88, 23
-.word 86, 156
-.word 32, 78
-.word 51, 33
-.word 85, 123
-.word 83, 167
-.word 85, 100
-.word 57, 11
-.word 33, 67
-.word 45, 45
-.word 85, 156
-.word 88, 122
-.word 37, 0
-.word 88, 190
-.word 81, 101
-.word 30, 123
-.word 33, 357
-.word 45, 234
-.word 81, 468
-.word 30, 78
-.word 80, 412
-.word 28, 112
-.word 81, 100
-.word 32, 157
-.word 83, 23
-.word 81, 256
-.word 33, 123
-.word 85, 11
-.word 57, 0
-.word 81, 11
-.word 45, 167
-.word 85, 100
-.word 88, 123
-.word 37, 0
-.word 88, 178
-.word 81, 112
-.word 30, 100
-.word 33, 379
-.word 33, 178
-.word 81, 525
-.word 30, 168
-.word 90, 211
-.word 28, 78
-.word 88, 11
-.word 88, 145
-.word 32, 246
-.word 85, 33
-.word 83, 279
-.word 33, 89
-.word 81, 22
-.word 57, 0
-.word 85, 34
-.word 81, 224
-.word 37, 122
-.word 81, 134
-.word 81, 134
-.word 42, 122
-.word 36, 402
-.word 35, 379
-.word 86, 66
-.word 41, 357
-.word 40, 380
-.word 83, 56
-.word 64, 67
-.word 40, 11
-.word 34, 223
-.word 85, 412
-.word 33, 23
-.word 57, 44
-.word 33, 89
-.word 85, 134
-.word 37, 112
-.word 88, 11
-.word 88, 189
-.word 81, 89
-.word 30, 112
-.word 81, 12
-.word 45, 379
-.word 33, 34
-.word 33, 133
-.word 90, 524
-.word 30, 78
-.word 90, 312
-.word 88, 101
-.word 28, 111
-.word 32, 258
-.word 85, 22
-.word 83, 290
-.word 45, 89
-.word 85, 11
-.word 57, 33
-.word 33, 78
-.word 85, 23
-.word 85, 145
-.word 37, 111
-.word 88, 67
-.word 88, 134
-.word 81, 111
-.word 30, 112
-.word 33, 356
-.word 45, 11
-.word 33, 168
-.word 81, 525
-.word 30, 78
-.word 80, 412
-.word 28, 100
-.word 32, 279
-.word 83, 22
-.word 81, 257
-.word 85, 122
-.word 57, 0
-.word 81, 23
-.word 33, 78
-.word 85, 168
-.word 88, 111
-.word 40, 23
-.word 88, 122
-.word 81, 168
-.word 88, 11
-.word 37, 78
-.word 33, 434
-.word 33, 134
-.word 45, 56
-.word 38, 156
-.word 81, 323
-.word 42, 89
-.word 52, 380
-.word 40, 0
-.word 81, 23
-.word 81, 278
-.word 32, 90
-.word 83, 11
-.word 81, 390
-.word 33, 33
-.word 85, 0
-.word 57, 23
-.word 81, 78
-.word 33, 33
-.word 81, 111
-.word 33, 123
-.word 57, 11
-.word 81, 56
-.word 81, 201
-.word 35, 100
-.word 86, 56
-.word 81, 68
-.word 35, 22
-.word 81, 156
-.word 47, 111
-.word 35, 90
-.word 81, 33
-.word 47, 167
-.word 36, 78
-.word 87, 56
-.word 36, 368
-.word 37, 379
-.word 88, 122
-.word 37, 168
-.word 37, 190
-.word 49, 212
-.word 93, 401
-.word 30, 89
-.word 81, 34
-.word 90, 368
-.word 45, 0
-.word 33, 11
-.word 83, 44
-.word 90, 78
-.word 90, 134
-.word 86, 123
-.word 47, 11
-.word 35, 11
-.word 86, 112
-.word 86, 133
-.word 36, 191
-.word 86, 67
-.word 86, 134
-.word 88, 133
-.word 47, 11
-.word 35, 0
-.word 81, 34
-.word 90, 245
-.word 52, 22
-.word 45, 67
-.word 33, 0
-.word 83, 34
-.word 64, 0
-.word 90, 67
-.word 81, 334
-.word 30, 11
-.word 45, 346
-.word 33, 100
-.word 57, 189
-.word 85, 23
-.word 85, 168
-.word 76, 0
-.word 37, 0
-.word 85, 312
-.word 40, 0
-.word 78, 56
-.word 85, 212
-.word 42, 145
-.word 86, 111
-.word 86, 134
-.word 88, 122
-.word 43, 12
-.word 88, 133
-.word 88, 134
-.word 42, 145
-.word 76, 0
-.word 40, 369
-.word 78, 67
-.word 37, 323
-.word 76, 33
-.word 93, 658
-.word 30, 100
-.word 81, 145
-.word 30, 23
-.word 90, 222
-.word 45, 0
-.word 33, 0
-.word 83, 67
-.word 90, 67
-.word 90, 146
-.word 86, 112
-.word 47, 11
-.word 35, 11
-.word 86, 245
-.word 86, 134
-.word 36, 0
-.word 86, 268
-.word 47, 133
-.word 35, 11
-.word 81, 12
-.word 88, 100
-.word 90, 134
-.word 45, 122
-.word 33, 0
-.word 83, 23
-.word 64, 0
-.word 90, 11
-.word 30, 356
-.word 81, 34
-.word 88, 358
-.word 40, 11
-.word 88, 178
-.word 88, 212
-.word 32, 0
-.word 88, 256
-.word 35, 67
-.word 35, 156
-.word 88, 45
-.word 35, 156
-.word 88, 100
-.word 32, 22
-.word 88, 246
-.word 36, 111
-.word 88, 22
-.word 36, 102
-.word 88, 200
-.word 88, 145
-.word 88, 223
-.word 82, 368
-.word 84, 268
-.word 85, 256
-.word 57, 11
-.word 45, 0
-.word 33, 11
-.word 85, 123
-.word 85, 145
-.word 88, 100
-.word 37, 11
-.word 88, 124
-.word 30, 0
-.word 88, 178
-.word 81, 0
-.word 30, 90
-.word 33, 434
-.word 83, 658
-.word 30, 78
-.word 81, 312
-.word 28, 57
-.word 83, 22
-.word 32, 379
-.word 86, 0
-.word 86, 145
-.word 88, 178
-.word 85, 89
-.word 57, 0
-.word 33, 112
-.word 85, 167
-.word 81, 123
-.word 37, 0
-.word 81, 133
-.word 76, 168
-.word 30, 122
-.word 33, 358
-.word 83, 691
-.word 30, 178
-.word 81, 212
-.word 83, 112
-.word 28, 89
-.word 85, 178
-.word 32, 100
-.word 86, 145
-.word 88, 158
-.word 85, 100
-.word 57, 0
-.word 33, 89
-.word 85, 190
-.word 37, 122
-.word 88, 123
-.word 88, 145
-.word 30, 111
-.word 88, 22
-.word 81, 0
-.word 54, 0
-.word 81, 268
-.word 33, 156
-.word 81, 759
-.word 30, 56
-.word 30, 234
-.word 80, 89
-.word 28, 100
-.word 81, 112
-.word 32, 167
-.word 83, 22
-.word 31, 379
-.word 81, 11
-.word 81, 134
-.word 81, 134
-.word 81, 145
-.word 81, 157
-.word 81, 145
-.word 31, 67
-.word 81, 111
-.word 81, 190
-.word 31, 78
-.word 26, 1259
-.word 33, 704
-.word 45, 11
-.word 85, 11
-.word 57, 0
-.word 85, 134
-.word 85, 133
-.word 88, 112
-.word 37, 11
-.word 88, 134
-.word 81, 167
-.word 88, 11
-.word 30, 112
-.word 33, 356
-.word 90, 704
-.word 30, 78
-.word 90, 312
-.word 88, 89
-.word 28, 122
-.word 88, 12
-.word 32, 256
-.word 85, 11
-.word 83, 290
-.word 33, 90
-.word 85, 11
-.word 57, 23
-.word 33, 100
-.word 45, 0
-.word 85, 145
-.word 37, 123
-.word 88, 122
-.word 81, 178
-.word 30, 90
-.word 33, 390
-.word 45, 234
-.word 81, 447
-.word 30, 178
-.word 28, 279
-.word 80, 33
-.word 81, 290
-.word 32, 100
-.word 83, 11
-.word 81, 301
-.word 85, 90
-.word 33, 0
-.word 57, 11
-.word 33, 133
-.word 45, 0
-.word 85, 145
-.word 37, 112
-.word 88, 11
-.word 88, 189
-.word 81, 80
-.word 30, 100
-.word 33, 401
-.word 81, 691
-.word 30, 89
-.word 90, 301
-.word 28, 78
-.word 88, 34
-.word 32, 369
-.word 85, 11
-.word 83, 279
-.word 33, 100
-.word 81, 22
-.word 57, 11
-.word 45, 123
-.word 81, 134
-.word 37, 122
-.word 81, 11
-.word 81, 268
-.word 42, 123
-.word 36, 379
-.word 35, 380
-.word 86, 78
-.word 41, 345
-.word -1, -1        # Add this as the LAST entry to mark end-of-song
 MUSIC_LOADED: .word 0
 last_note_time: .word 0     # Store time of last note played
 current_note:   .word 0     # Current position in the music array
 ##############################################################################
 # Immutable Data
 ##############################################################################
+debug_msg: .asciiz "Debug: board value at position = "
+newline: .asciiz "\n"
 # The address of the bitmap display. Don't forget to connect it!
 ADDR_DSPL:
     .word 0x10008000
@@ -958,6 +117,37 @@ virus_pixels: #pixel representation of the viruses
     .word 0xA3A7B4, 0x372F30, 0x7395EF, 0x7394F3, 0x7798F0, 0x62B1EA, 0x08243B, 0x36393E, 0x6B8AEB, 0x7799F9
     .word 0x5B605F, 0x302F32, 0x3E414F, 0x7391EF, 0x7592F0, 0x6989E8, 0x7898F2, 0x6288EE, 0x9FA0C0, 0x2F2F31
 
+data_board: #pixel representation of the viruses
+    .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+viruses: #these store the display positions of the viruses, to align them with data_board, offset by -5.
+  .word 0, 0
+        0, 0
+        0, 0
+        0, 0
 ##############################################################################
 # Code
 ##############################################################################
@@ -985,12 +175,6 @@ game_loop:
     # 2a. Check for collisions
 	# 2b. Update locations (capsules)
     jal key_check
-    
-    #Refresh the screen every second 60 times
-    li $a0, 16              # Sleep for ~16ms (1/60th second)
-    li $v0, 32              # Syscall for sleep
-    move $a0, $zero         # Store time as seed
-    syscall
 
     # 5. Go back to Step 1
     j game_loop
@@ -1201,7 +385,6 @@ check_reg_horz:
   
   
 check_vertical:
-   
    lw $t6, capsule_x       # Load current x position (column)
    lw $t1, capsule_y       # Load current y position
     
@@ -1460,12 +643,6 @@ keyboard_input:                     # A key is pressed
 
     lw $t3, KEY_D
     beq $t2, $t3, respond_to_D
-
-    lw $t3, KEY_X
-    beq $t2, $t3, respond_to_X
-
-    lw $t3, KEY_Z
-    beq $t2, $t3, respond_to_Z
     
     lw $t3, KEY_W
     beq $t2, $t3, respond_to_W
@@ -1479,17 +656,24 @@ respond_to_A: # Move left
     jal plink_sound
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
-    lw $t0, ADDR_DSPL       # Load base address of display
     move $t7, $t6            
     addi $t7, $t7, -1       # Store potential x position in t7
     
     jal check_horz          # Call check_horz with new x position
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
     
+    move $a0, $t7
+    move $a1, $t1
+    li $a2, 0 # 0 means we're moving left
+    move $a3, $t5 # 0 means capsule is currently horizontal
+    jal check_leftright_translate
+    
     jal check_vertical
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
-    jal calculate_offset
     
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
+    jal calculate_offset
     lw $t7, COLOR_BLACK
     beq $t5, 1, left_vert_A
     sw $t7, 0($t4)          # Store black at (x, y)
@@ -1511,27 +695,73 @@ respond_to_A: # Move left
         # Then redraw capsule at new position
         jal draw_curr
         j game_loop
- 
+        
+# $a0=x-position, $a1=y-position, $a2=direction(0=left,1=right), $a3=orientation
+check_leftright_translate:
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+    beq $a2, 0, check_left_translate
+    beq $a2, 1, check_right_translate
+    
+    check_left_translate:
+        beq $a3, 1, check_vert_translate
+        jal get_board_cell  # check the left cell of the capsule
+        bnez $v0, game_loop # skip if there is already a block there
+        
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4  
+        jr $ra  
+    check_right_translate:    
+        beq $a3, 1, check_vert_translate
+        addi $a0, $a0, 1    # check the right cell of the capsule
+        jal get_board_cell
+        bnez $v0, game_loop # skip if there is already a block there
+        
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4  
+        jr $ra  
+    check_vert_translate:
+        move $t7, $a0
+        move $t8, $a1
+        jal get_board_cell  # check the potential location of pivot cell
+        bnez $v0, game_loop # skip if there is already a block there
+        addi $t8, $t8, -1
+        
+        move $a0, $t7
+        move $a1, $t8
+        jal get_board_cell  # check the cell on top of pivot
+        bnez $v0, game_loop # skip if there is already a block there 
+        
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4  
+        jr $ra  
+     
+
 respond_to_S: #move capsule down when S is pressed
     jal plink_sound
     lw $t6, capsule_x       # Load current x position (column)
-    lw $t1, capsule_y       # Load current x position (column)
-    lw $t0, ADDR_DSPL       # Load base address of display
+    lw $t1, capsule_y       # Load current y position (column)
+    lw $t5, capsule_orient
+    
     jal check_vertical
+    beq $t4, 0, redraw_capsules   # If out of bounds (t4 == 0), don't move
     
-    beq $t4, 0, redraw_capsules   # If out of bounds (t4 == 1), don't move
-    jal calculate_offset
-    beq $t5, 1, down_vert_S 
-    
-    sw $t7, 0($t4)          # Store black at (x, y)
-    sw $t7, 4($t4)          # Store black at (x+1, y)
-    addi $t1, $t1, 1        # Move down (y = y + 1)
-    sw $t1, capsule_y       # Store updated y position
-    
-    # Then redraw capsule at new position
-    # jal draw_start_capsule
-    jal draw_curr
-    j game_loop
+    bgt $t1, 5, call_can_down
+        
+    continue_s_movement:
+      lw $t1, capsule_y       # Load current y position (column) (fix the function use arg regs)
+      lw $t0, ADDR_DSPL       # Load base address of display
+      jal calculate_offset
+      beq $t5, 1, down_vert_S 
+      lw $t7, COLOR_BLACK
+      sw $t7, 0($t4)          # Store black at (x, y)
+      sw $t7, 4($t4)          # Store black at (x+1, y)
+      addi $t1, $t1, 1        # Move down (y = y + 1)
+      sw $t1, capsule_y       # Store updated y position
+      
+      # Then redraw capsule at new position
+      jal draw_curr
+      j game_loop
     
     down_vert_S:
         sw $t1, capsule_y       # Store updated y position
@@ -1539,28 +769,72 @@ respond_to_S: #move capsule down when S is pressed
         sw $t7, -128($t4)       # Store black at (x+1, y)
         addi $t1, $t1, 1        # Move down (y = y + 1)
         sw $t1, capsule_y       # Store updated y position
-    
-        # Then redraw capsule at new position
-        # jal draw_start_capsule
+
         jal draw_curr
         j game_loop
+    
+    call_can_down:
+        move $a0, $t6
+        move $a1, $t1
+        move $a2, $t5 
+        jal can_down
+        j continue_s_movement
+        
+    # $a0=x-position, $a1=y-position, $a2=orientation
+    can_down:
+        addi $sp, $sp, -4       # Move stack pointer
+        sw $ra, 0($sp)          # Save $ra on stack
+        
+        addi $a1, $a1, 1           # add 1 to the y-coordinate to move it to potential location
+        beq $a2, 1, can_down_vert
+        move $t7, $a0
+        move $t8, $a1
+        jal get_board_cell
+        bnez $v0, redraw_capsules
+        
+        move $a0, $t7
+        move $a1, $t8
+        addi $a0, $a0, 1           # add 1 to the x-coordinate to access the right cell of capsule
+        jal get_board_cell
+        bnez $v0, redraw_capsules # skip if there is already a block there
+        
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4  
+        jr $ra   
+        
+    can_down_vert:
+        jal get_board_cell
+        bnez $v0, redraw_capsules # skip if there is already a block there
+        
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4  
+        jr $ra   
 
 redraw_capsules:
-
-    lw $t2, capsule_y        # Load current y position
-    # li $t4, 480              # Assuming 480 is the bottom of the screen
-    # bne $t2, $t4, game_loop  # If not at the bottom, continue game
-
+    lw $t2, capsule_x
+    lw $t3, capsule_y
+    # addi $t3, $t3, -1   # subtract 1 from y-coordinate to account for off by one (at this point, the capsule is in an invalid location)
+    move $a0, $t2       # x-coordinate
+    move $a1, $t3       # y-coordinate
+    li   $a2, 1         # virus color (4, 5, or 6)
+    jal set_board_cell  # save position
+    
+    lw $t1, capsule_orient
+    beq $t1, 1, save_top_cell_vert # If capsule is vertical we save differently
+    
+    lw $t2, capsule_x
+    lw $t3, capsule_y
+    move $a0, $t2       # x-coordinate
+    move $a1, $t3       # y-coordinate
+    addi $a0, $a0, 1    # increase x-coordinate by 1 to move to right cell, y-ccordinate remains
+    jal set_board_cell  # save position
+    
     # Reset capsule to start position (10,2)
     li $t2, 10      
     li $t3, 2
     sw $t2, capsule_x        # Store x = 10
     sw $t3, capsule_y        # Store y = 2
-
-    # Load capsule colors
-    lw $t2, capsule_color1   
-    lw $t3, capsule_color2   
-
+    
     # Reset capsule colors if needed
     li $t6, 0
     sw $t6, capsule_color1
@@ -1570,13 +844,37 @@ redraw_capsules:
     li $s6, 1000
 
     j game_loop              # Continue game loop
-
+    
+    save_top_cell_vert:
+        lw $t2, capsule_x
+        lw $t3, capsule_y
+        move $a0, $t2       # x-coordinate
+        move $a1, $t3       # y-coordinate
+        addi $a1, $a1, -1   # subtract 1 from y-coordinate to move to top cell, x-coordinate remains
+        jal set_board_cell  # save position
+    
+        # Reset capsule to start position (10,2)
+        li $t2, 10      
+        li $t3, 2
+        sw $t2, capsule_x        # Store x = 10
+        sw $t3, capsule_y        # Store y = 2
+    
+        # Reset capsule colors if needed
+        li $t6, 0
+        sw $t6, capsule_color1
+        sw $t6, capsule_color2
+        
+        jal reset_next
+        li $s6, 1000
+        
+        sw $zero, capsule_orient
+        j game_loop              # Continue game loop
+        
     
 respond_to_D:
     jal plink_sound
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
-    lw $t0, ADDR_DSPL       # Load base address of display
     move $t7, $t6            
     addi $t7, $t7, 1        # Store potential x position in t7
     
@@ -1585,8 +883,16 @@ respond_to_D:
     
     jal check_vertical
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
-    jal calculate_offset
     
+    move $a0, $t7
+    move $a1, $t1
+    li $a2, 1 # 0 means we're moving right
+    move $a3, $t5 # 0 means capsule is currently horizontal
+    jal check_leftright_translate
+    
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
+    jal calculate_offset
     lw $t7, COLOR_BLACK
     beq $t5, 1, right_vert_D
     sw $t7, 0($t4)          # Store black at (x, y)
@@ -1609,11 +915,6 @@ respond_to_D:
         # Then redraw capsule at new position
         jal draw_curr
         j game_loop     
-    
-respond_to_X: # Rotate Right
-    j key_check
-respond_to_Z: # Rotate Left
-    j key_check
 
 respond_to_W:
     jal plink_sound
@@ -1701,8 +1002,9 @@ set_board_cell:
     add $a1, $a1, $s3
     
     mul $t0, $a1, $t4     # t0 = y * BOARD_WIDTH
-    sll $t2, $a0, 2       # t2 = x * 4 (x offset)
-    add $t0, $t0, $t2     # t0 = (y * BOARD_WIDTH) + (x * 4)
+    add $t0, $t0, $a0     # t0 = y * BOARD_WIDTH + x
+    sll $t0, $t0, 2       # t2 = x * 4 (x offset)
+    
     la $t1, board
     add $t1, $t1, $t0
     sw $a2, 0($t1)
@@ -1717,8 +1019,9 @@ get_board_cell:
     add $a1, $a1, $s3
     
     mul $t0, $a1, $t4     # t0 = y * BOARD_WIDTH
-    sll $t2, $a0, 2       # t2 = x * 4 (x offset)
-    add $t0, $t0, $t2     # t0 = (y * BOARD_WIDTH) + (x * 4)
+    add $t0, $t0, $a0     # t0 = y * BOARD_WIDTH + x
+    sll $t0, $t0, 2       # t2 = x * 4 (x offset)
+    
     la $t1, board
     add $t1, $t1, $t0
     lw $v0, 0($t1)
@@ -1751,6 +1054,7 @@ init_virus_loop:
     syscall #returns in a0
     addi $a0, $a0, 5
     move $s4, $a0
+    
     # Random y coordinate in lower half (BOARD_HEIGHT/2 to BOARD_HEIGHT-1)
     lw   $t3, BOARD_HEIGHT   # Load board height into $t3
     div  $t3, $t3, 2         # Divide BOARD_HEIGHT by 2; quotient in LO
@@ -1760,6 +1064,7 @@ init_virus_loop:
     move $a1, $t3
     li   $a0, 0               # reinitialize a0 to 0
     syscall                 # Random y-coordinate is returned in $a0
+    addi $a0, $a0, 5
     add  $s5, $t4, $a0
     
     # Get random color for virus (viruses encoded as 4,5,6)
@@ -1768,9 +1073,9 @@ init_virus_loop:
     li $a0, 0               # reinitialize a0 to 0 from prev syscall
     syscall
     addi $a0, $a0, 4
+    move $t3, $a0           # t3 stores the colour index
     jal get_color
-    move $t7, $v0
-    li $v0, 0
+    move $t7, $v0           # t7 stores the colour
     
     # Set board cell at (random x, random y) if empty
     move $a0, $s4
@@ -1780,7 +1085,7 @@ init_virus_loop:
 
     move $a0, $s4  # x-coordinate
     move $a1, $s5  # y-coordinate
-    move $a2, $t7  # virus color (4, 5, or 6)
+    move $a2, $t3  # virus color (4, 5, or 6)
     jal set_board_cell  # Place the virus
 
 
@@ -1832,22 +1137,20 @@ pause_sound:
     addi $sp, $sp, 4  
     jr $ra
 
-game_over_sound:
-    addi $sp, $sp, -4       # Move stack pointer
-    sw $ra, 0($sp)          # Save $ra on stack
+# game_over_sound:
+    # addi $sp, $sp, -4       # Move stack pointer
+    # sw $ra, 0($sp)          # Save $ra on stack
     
-    lw $ra, 0($sp)    
-    addi $sp, $sp, 4  
-    jr $ra
+    # lw $ra, 0($sp)    
+    # addi $sp, $sp, 4  
+    # jr $ra
 
-you_win_sound:
-    addi $sp, $sp, -4       # Move stack pointer
-    sw $ra, 0($sp)          # Save $ra on stack
+# you_win_sound:
+    # addi $sp, $sp, -4       # Move stack pointer
+    # sw $ra, 0($sp)          # Save $ra on stack
   
-    lw $ra, 0($sp)    
-    addi $sp, $sp, 4  
-    jr $ra
-
-
+    # lw $ra, 0($sp)    
+    # addi $sp, $sp, 4  
+    # jr $ra
     
     
