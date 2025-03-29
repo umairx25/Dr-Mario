@@ -234,7 +234,19 @@ data_board: #pixel representation of the viruses
 
 
 viruses: #these store the display positions of the viruses, to align them with data_board, offset by -5.
-  .word 0, 0, 0, 0
+  .word 0, 0, 0, 0  #0xFFFFFF
+
+game_over_pixels:
+    .word 0x000000, 0xC11C84, 0xC11C84, 0x000000, 0x000000, 0x000000, 0x000000, 0xC11C84, 0xC11C84, 0x000000
+    .word 0xC11C84, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0xC11C84, 0x000000, 0x000000, 0xC11C84
+    .word 0xC11C84, 0x000000, 0xC11C84, 0xC11C84, 0x000000, 0x000000, 0xC11C84, 0x000000, 0x000000, 0xC11C84
+    .word 0xC11C84, 0x000000, 0x000000, 0xC11C84, 0x000000, 0x000000, 0xC11C84, 0x000000, 0x000000, 0xC11C84
+    .word 0x000000, 0xC11C84, 0xC11C84, 0xC11C84, 0x000000, 0xC11C84, 0x000000, 0xC11C84, 0xC11C84, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+    .word 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
 
 ##############################################################################
 # Code
@@ -268,6 +280,7 @@ game_loop:
     j game_loop
 
 exit:
+    jal draw_game_over
     li $v0, 10             # Terminate the program gracefully
     syscall
 
@@ -639,7 +652,7 @@ draw_curr:
     addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
     sw    $ra, 0($sp)        # Save return address
     
-    jal game_over
+    # jal game_over
     jal draw_current
     jal draw_nxt
     
@@ -973,7 +986,7 @@ respond_to_S: #move capsule down when S is pressed
     lw $t0, ADDR_DSPL       # Load base address of display
     jal calculate_offset    #t4 gives back the final offset
     lw $t2, 128($t4)        #get the square right below current, if occupied, exit
-    bne $t2, 0, exit
+    bne $t2, 0, exit        #game over logic
     
     
  continue_S:   
@@ -1047,8 +1060,6 @@ respond_to_S: #move capsule down when S is pressed
         jr $ra   
 
 redraw_capsules:
-    # jal game_over
-    # lw $t0, data_board
     lw $t2, capsule_x
     lw $t3, capsule_y
     move $a0, $t2       # x-coordinate
@@ -1256,65 +1267,110 @@ unpause:
     sw $t7, 268($t8)
     sw $t7, 140($t8)
     j key_check              # Allows other keys to be pressed
-    
 
 respond_to_R:
-    # j main
-    # Reset capsule position
-    lw $t0, ADDR_DSPL
-    lw $t7, COLOR_BLACK
-    lw $t6, capsule_x
-    lw $t1, capsule_y
-    jal calculate_offset
-    
-    move $t1, $t4
-    
-    move $t2, $t7
-    sw $t1, capsule_color1
-    sw $t2, capsule_color2
-    
-    li   $t0, 10
-    sw   $t0, capsule_x
-    li   $t0, 2
-    sw   $t0, capsule_y
+    # Save return address
+    addi $sp, $sp, -4       # Move stack pointer to make space
+    sw $ra, 0($sp)          # Save $ra (return address) on stack
 
-    # Reset capsule orientation and colors
-    li   $t0, 0
-    sw   $t0, capsule_orient
-    sw   $t0, capsule_color1
-    sw   $t0, capsule_color2
-    sw   $t0, next_capsule_color1
-    sw   $t0, next_capsule_color2
+    # Reset capsule position and colors
+    lw $t7, COLOR_BLACK     # Load black color
+    li $t0, 10              # Default X position for capsule
+    sw $t0, capsule_x       # Store X position
+    li $t0, 2               # Default Y position for capsule
+    sw $t0, capsule_y       # Store Y position
+    
+    # Reset capsule orientation and color
+    li $t0, 0
+    sw $t0, capsule_orient  # Reset capsule orientation
+    sw $t0, capsule_color1  # Reset capsule color 1
+    sw $t0, capsule_color2  # Reset capsule color 2
+    sw $t0, next_capsule_color1
+    sw $t0, next_capsule_color2
 
-    # Reset viruses and score
-    li   $t0, 4
-    sw   $t0, viruses_left
-    li   $t0, 0
-    sw   $t0, score
+    # Reset viruses left and score
+    li $t0, 4
+    sw $t0, viruses_left    # Reset the number of viruses
+    li $t0, 0
+    sw $t0, score           # Reset score to 0
 
     # Reset game state flags
-    li   $t0, 1
-    sw   $t0, GAME_ACTIVE
-    li   $t0, 0
-    sw   $t0, GAME_PAUSED
+    li $t0, 1
+    sw $t0, GAME_ACTIVE     # Set game to active
+    li $t0, 0
+    sw $t0, GAME_PAUSED     # Set game to unpaused
+
+    # Clear viruses (assuming viruses are stored in an array)
+    la $t4, viruses         # Load address of viruses array
+    sw $zero, 0($t4)        # Clear virus 1
+    sw $zero, 4($t4)        # Clear virus 2
+    sw $zero, 8($t4)        # Clear virus 3
+    sw $zero, 12($t4)       # Clear virus 4
 
     # Clear board (12 * 24 = 288 bytes)
-    la   $t1, board
-    li   $t2, 288          # Loop counter
-    
+    la $t1, board           # Load address of board
+    li $t2, 288             # 288 bytes to clear
+
 clear_board:
-    sw   $zero, 0($t1)     # Store 0 at board[i]
-    addi $t1, $t1, 4       # Move to next word
-    subi $t2, $t2, 4       # Decrement counter
-    bnez $t2, clear_board  # Loop until counter reaches 0
-    
-    li $a0, 1000                   # Sleep for 1 second
-    li $v0, 32                      # Syscall for sleep
+    sw $zero, 0($t1)        # Store 0 at current board position
+    addi $t1, $t1, 4        # Move to the next word (4 bytes)
+    subi $t2, $t2, 4        # Decrement counter
+    bnez $t2, clear_board   # Repeat until all bytes are cleared
+
+
+    jal clear_dspl
+
+    # Sleep for 1 second
+    li $a0, 1000            # 1000 milliseconds = 1 second
+    li $v0, 32              # Syscall for sleep
     syscall
+    
+    jal init_viruses
+    li $s6, 500
 
-    jr   $ra               # Return
+    # Restore return address and adjust stack pointer
+    lw $ra, 0($sp)          # Restore $ra (return address)
+    addi $sp, $sp, 4        # Adjust stack pointer back
+
+    jr $ra                  # Jump back to the caller (return to the game loop)
 
 
+# Helper function to clear the play area
+clear_dspl:                  
+    lw   $t6, ADDR_DSPL         # Load base display address
+    li   $t3, 5                 # Start X, set starting x coordinates for drawing
+    li   $t4, 5                 # Start Y, set starting y coordinates for drawing
+    li   $t5, 12                # Number of cols
+    li   $t7, 24                # Number of rows
+    addiu $sp, $sp, -4          # Save $ra before calling another function
+    sw    $ra, 0($sp)        
+    
+    # Offset for X/Y calculation based on the display width
+    addi $t6, $t6, 640          # Adjust base address for first row
+    addi $t6, $t6, 20           # Additional Y offset for start position
+
+y_loop3:
+    li   $t8, 0                 # Column counter (X)
+
+x_loop3:
+    # Compute memory address for display (row offset already in $t6)
+    mul   $t9, $t8, 4           # X offset, each column is 4 bytes (word size)
+    add   $t9, $t9, $t6         # Add X offset to base address for current column
+
+    # Clear the pixel (set to zero)
+    sw    $zero, 0($t9)         # Store 0 at the computed address
+
+    addi $t8, $t8, 1            # Next column
+    bne  $t8, $t5, x_loop3      # If not end of row, continue
+
+    # Move to next row (128 bytes per row in the display)
+    add   $t6, $t6, 128         # Y offset for next row
+    addi $t2, $t2, 1            # Next row
+    bne  $t2, $t7, y_loop3      # If not 24 rows, continue
+
+    lw    $ra, 0($sp)           # Restore return address
+    addiu $sp, $sp, 4           # Pop stack
+    jr   $ra                    # Return
 
 
 
@@ -1543,31 +1599,6 @@ x_loop1:
     add  $t9, $t0, $t9           # Compute final X address on addr display
     
     lw   $a3, 0($t9)             # Load color value from ADDR_DSPL into $a3 ************
-
-    #Print the raw color value stored in bitmap display  THE BITMAP HEX COLORS ARE CORRECTLY DISPLAYED
-    # move $a0, $a3                # Move color value to $a0 for printing
-    # li   $v0, 1                  # Syscall to print integer
-    # syscall                      # Print the color value
-
-    # li   $a0, 32                 # ASCII space (' ')
-    # li   $v0, 11                 # Syscall to print character
-    # syscall                      # Print space
-
-    # jal get_index
-    # # Check horizontal matches
-    # sw   $v0, 0($t1)
-    # lw   $t3, 0($t1)             # Load pixel color from sprite data
-    # #get index gives correct num rep in v0. How do I store that value at the address def by t3?
-    
-    # # Print the numerical rep of the colour
-    # move $a0, $t3                # Move color value to $a0 for printing
-    # li   $v0, 1                  # Syscall to print integer
-    # syscall                      # Print the color value
-
-    # li   $a0, 32                 # ASCII space (' ')
-    # li   $v0, 11                 # Syscall to print character
-    # syscall                      # Print space
-
     
     beqz $a3, check_vert_match
 
@@ -1585,31 +1616,11 @@ x_loop1:
     addi $t6, $t6, 5
     sw $t6, score
     
-    #how do I store 0s at a3, its right pixel, its right pixel, then its right pixel
-    # # Store to display memory
-    # sw   $t3, 0($t9)              # Store matched color to display
-    # sw   $s0, 4($t9)              # Store next color to display
-    # sw   $s1, 8($t9)              # Store next color to display
-    # sw   $s2, 12($t9)             # Store next color to display
-    
-    # # Store zeros at the current pixel and its three right pixels
-    # sw   $zero, 0($a3)    # Store 0 at current pixel address
-    # sw   $zero, 4($a3)    # Store 0 at the right pixel
-    # sw   $zero, 8($a3)    # Store 0 at the second right pixel
-    # sw   $zero, 12($a3)   # Store 0 at the third right pixel
-
 # Store to display memory (you can adjust this logic if necessary)
     sw   $zero, 0($t9)       # Store matched color to display
     sw   $zero, 4($t9)       # Store next color to display
     sw   $zero, 8($t9)       # Store next color to display
     sw   $zero, 12($t9)      # Store next color to display
-    
-    # # Store the matched color in data_board
-    # la   $t4, data_board
-    # sw   $t3, 0($t4)              # Store the matched color in data_board[0]
-    # sw   $s0, 4($t4)              # Store the next color in data_board[1]
-    # sw   $s1, 8($t4)              # Store the next color in data_board[2]
-    # sw   $s2, 12($t4)             # Store the next color in data_board[3]
 
 check_vert_match:
     # Check vertical matches
@@ -1633,33 +1644,6 @@ check_vert_match:
     sw   $zero, 128($t9)       # Store next color to display
     sw   $zero, 256($t9)       # Store next color to display
     sw   $zero, 384($t9)      # Store next color to display
-    
-    ################
-    
-    # lw   $t3, 0($t1)              # Load pixel color from sprite data
-    # beqz $t3, next_column
-
-    # lw   $s0, 128($t1)
-    # lw   $s1, 256($t1)
-    # lw   $s2, 384($t1)
-
-    # # Compare colors
-    # bne $t3, $s0, next_column
-    # bne $s0, $s1, next_column
-    # bne $s1, $s2, next_column
-
-    # # Store the matched color in data_board
-    # la   $t4, data_board
-    # sw   $t3, 0($t4)              # Store the matched color in data_board[0]
-    # sw   $s0, 128($t4)            # Store the next color in data_board[1]
-    # sw   $s1, 256($t4)            # Store the next color in data_board[2]
-    # sw   $s2, 384($t4)            # Store the next color in data_board[3]
-
-    # # Store to display memory
-    # sw   $t3, 0($t9)              # Store matched color to display
-    # sw   $s0, 128($t9)            # Store next color to display
-    # sw   $s1, 256($t9)            # Store next color to display
-    # sw   $s2, 384($t9)            # Store next color to display
 
 next_column:
     addi $t1, $t1, 4              # Move to next pixel in sprite data
@@ -1745,43 +1729,80 @@ next_column2:
     addiu $sp, $sp, 4             # Pop stack
     jr   $ra                       # Return
 
-game_over:
-    # Load base address of display
-    lw $t0, ADDR_DSPL
-    li $t2, 5 #y value 
-    li $t5, 9 #x values were insterested in
-    # lw $t6, 10 #^^
-    # lw $t7, 11 #^^
+# game_over:
+    # # Load base address of display
+    # lw $t0, ADDR_DSPL
+    # li $t2, 5 #y value 
+    # li $t5, 9 #x values were insterested in
+    # # lw $t6, 10 #^^
+    # # lw $t7, 11 #^^
 
-    mul $t5, $t5, 4         # x (column) * 4 (column offset)
-    mul $t3, $t2, 128       # y (row) * 128 (row offset)
-    add $t4, $t5, $t3       # total offset
-    add $t4, $t4, $t0       # final address = base + offset
+    # mul $t5, $t5, 4         # x (column) * 4 (column offset)
+    # mul $t3, $t2, 128       # y (row) * 128 (row offset)
+    # add $t4, $t5, $t3       # total offset
+    # add $t4, $t4, $t0       # final address = base + offset
     
-    lw $t3, 0($t4) #(9,4)
-    bnez $t3, exit
-    lw $t3, 4($t4) #(10,4)
-    bnez $t3, exit
-    lw $t3, 8($t4) #(11,4)
-    bnez $t3, exit
+    # lw $t3, 0($t4) #(9,4)
+    # bnez $t3, exit
+    # lw $t3, 4($t4) #(10,4)
+    # bnez $t3, exit
+    # lw $t3, 8($t4) #(11,4)
+    # bnez $t3, exit
     
-    jr $ra
+    # jr $ra
+
+draw_game_over:
+    jal clear_dspl
+    
+    lw   $t6, ADDR_DSPL         # Load base display address
+    la   $t1, game_over_pixels   # Load base address of dr mario pixel data
+    li   $t3, 6                 # Start X, set starting x coordinates for drawing
+    li   $t4, 8                 # Start Y, set starting y coordinates for drawing
+    li   $t5, 10                #number of rows
+    li   $t7, 10                #number of columns
+    
+    addiu $sp, $sp, -4        # Push return address onto stack
+    sw    $ra, 0($sp)
+    
+    jal  draw_pixels      # Draw Dr. Mario
+
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4         # Pop stack
     
     
+    lw $t6, GAME_PAUSED
+    beq $t6, 0, pause        # Pause if p pressed first time
+    lw $t1, 0($t0)           # If GAME_PAUSED is already 1, load first word from keyboard (key state)
+    beq $t1, 1, check_p      # If key is pressed, send to check_p for exact key
+    j respond_to_P  
+    
+check_r:
+    lw $t2, 4($t0)           # Load second word from keyboard into $t2 (actual key pressed)
+    lw $t3, KEY_R
+    beq $t2, $t3, unpause    # Unpause if r was pressed, otherwise loop back
+    j respond_to_P           # This prevents any other key from being presßsed while paused
+pause_r:
+    jal pause_sound
+    addi $t6, $t6, 1
+    sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 1  
+    lw $t7, COLOR_WHITE
+    lw $t8, ADDR_DSPL       # Load base address of displayp
+    sw $t7, 260($t8)
+    sw $t7, 132($t8)
+    sw $t7, 268($t8)
+    sw $t7, 140($t8)
+    j respond_to_P
+unpause_r:
+    jal pause_sound
+    addi $t6, $t6, -1
+    sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 0
+    lw $t7, COLOR_BLACK
+    sw $t7, 260($t8)
+    sw $t7, 132($t8)
+    sw $t7, 268($t8)
+    sw $t7, 140($t8)
+    j key_check              # Allows other keys to be pressed 
+    
+    jr   $ra                  # Return after drawing Mario
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # lw $t5, capsule_orient
-    # beq $t5, 1, draw_vert 
-    
-    # # Store existing capsule colors in memory
-    # sw $s1, 0($t4)  
-    # sw $s2, 4($t4)  
