@@ -650,8 +650,8 @@ reuse_old_next:
     
     lw $s1, capsule_color1  # Load left side of capsule color
     lw $s2, capsule_color2  # Load right side of capsule color
-    move $s1, $s3
-    move $s2, $s4
+    # move $s1, $s3
+    # move $s2, $s4
     sw $s1, capsule_color1
     sw $s2, capsule_color2 
     # Compute the memory address from (x, y)
@@ -726,7 +726,7 @@ draw_cap:
 
 draw_vert:
     sw $s1, 0($t4)  
-    sw $s2, -128($t4)  
+    sw $s2, -128($t4) #switch s1 and s2 before
     jr $ra  # Return
     
 
@@ -1071,7 +1071,7 @@ redraw_capsules:
     li $s6, 1000
 
     jal check_matches
-    jal check_unsupported
+    # jal check_unsupported
     j game_loop              # Continue game loop
     
     save_top_cell_vert:
@@ -1159,6 +1159,7 @@ respond_to_W:
 
 horz_to_vert:
     jal calculate_offset
+    lw $t7, COLOR_BLACK
     sw $t7, 4($t4)          # Store black at (x+1, y)
     addi $s4, $s4, 1
     
@@ -1172,6 +1173,14 @@ horz_to_vert:
     move $t3, $t4
     sw $t2, capsule_color1
     sw $t3, capsule_color2
+    lw $t2, capsule_color1  # Load left capsule color (horizontal)
+    lw $t3, capsule_color2  # Load right capsule color (horizontal)
+    move $t4, $t2           # Temp storage
+    move $t2, $t3           # Swap: left -> bottom, right -> top
+    move $t3, $t4
+    sw $t2, capsule_color1  # Store new top color
+    sw $t3, capsule_color2  # Store new bottom color
+
     
     sw $s4, capsule_orient
     jal draw_curr
@@ -1179,11 +1188,21 @@ horz_to_vert:
 
 vert_to_horz:
     jal calculate_offset
-    sw $t7, -128($t4)          # Store black at (x+1, y)
+    lw $t7, COLOR_BLACK
+    sw $t7, -128($t4)          # Store black at (Y-1, y)
     
-    addi $s4, $s4, -1
+    addi $s4, $s4, -1 
     jal check_vertical
     beq $t4, 0, game_loop       # If out of bounds (t4 == 1), don't move
+    
+    lw $t2, capsule_color1  # Load current top color
+    lw $t3, capsule_color2  # Load current bottom color
+    move $t4, $t2           # Temporary storage for swap
+    move $t2, $t3           # Swap colors
+    move $t3, $t4           # Swap back
+    sw $t2, capsule_color1  # Store new left color
+    sw $t3, capsule_color2  # Store new right color
+
     sw $s4, capsule_orient
     jal draw_curr
     j game_loop
@@ -1642,4 +1661,3 @@ next_column2:
     lw    $ra, 0($sp)             # Restore return address
     addiu $sp, $sp, 4             # Pop stack
     jr   $ra                       # Return
-
