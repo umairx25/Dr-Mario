@@ -940,15 +940,21 @@ respond_to_W:
     beq $s4, 1, vert_to_horz
 
 horz_to_vert:
+    move $a0, $t6
+    move $a1, $t1
+    move $a2, $s4
+    jal can_rotate
+    
+    lw $s4, capsule_orient 
+    lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
     jal calculate_offset
     sw $t7, 4($t4)          # Store black at (x+1, y)
     addi $s4, $s4, 1        # Change orientation to vertical
     
     lw $t2, capsule_color1
     lw $t3, capsule_color2
-    # move $t4, $t2
-    # move $t2, $t3
-    # move $t3, $t4
     sw $t3, capsule_color1
     sw $t2, capsule_color2
     
@@ -957,6 +963,15 @@ horz_to_vert:
     j game_loop
 
 vert_to_horz:
+    move $a0, $t6
+    move $a1, $t1
+    move $a2, $s4
+    jal can_rotate
+    
+    lw $s4, capsule_orient 
+    lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
     jal calculate_offset
     sw $t7, -128($t4)          # Store black at (x+1, y)
     addi $s4, $s4, -1          # Change orientation to horizontal
@@ -965,31 +980,36 @@ vert_to_horz:
     jal draw_curr
     j game_loop
 
+# $a0=x-position, $a1=y-position, $a2=orientation
 can_rotate:
         addi $sp, $sp, -4       # Move stack pointer
         sw $ra, 0($sp)          # Save $ra on stack
         
-        addi $a1, $a1, 1           # add 1 to the y-coordinate to move it to potential location
-        beq $a2, 1, can_down_vert
-        
         move $t7, $a0
         move $t8, $a1
+        addi $a1, $a1, -1          # subtract 1 from the y-coordinate to move it to potential location
+        addi $a0, $a0, 1           # add 1 to the x-coordinate to move it to potential location
         jal get_board_cell
-        bnez $v0, redraw_capsules
+        bnez $v0, game_loop
+        
+        beq $a2, 1, can_rotate_vert
         
         move $a0, $t7
         move $a1, $t8
-        addi $a0, $a0, 1           # add 1 to the x-coordinate to access the right cell of capsule
+        addi $a1, $a1, -1           # subtract 1 from the y-coordinate to move it to potential location
         jal get_board_cell
-        bnez $v0, redraw_capsules # skip if there is already a block there
+        bnez $v0, game_loop # skip if there is already a block there
         
         lw $ra, 0($sp)
         addi $sp, $sp, 4  
         jr $ra   
         
     can_rotate_vert:
+        move $a0, $t7
+        move $a1, $t8
+        addi $a0, $a0, 1           # add 1 to the x-coordinate to move it to potential location
         jal get_board_cell
-        bnez $v0, redraw_capsules # skip if there is already a block there
+        bnez $v0, game_loop        # skip if there is already a block there
         
         lw $ra, 0($sp)
         addi $sp, $sp, 4  
@@ -1226,9 +1246,8 @@ check_matches:              #Helper function to draw image given its exact pixel
     la   $t0, data_board        # Load base address of dr mario pixel data
     li   $t5, 24                #number of rows
     li   $t7, 12                #number of columns
-
-initialize_pos:
-    li   $t2, 0               # Row counter (Y)
+    
+    li   $t2, 0                 # Initialize row counter (Y)
 
 y_loop1:
     li   $t8, 0               # Column counter (X)
@@ -1245,9 +1264,8 @@ x_loop1:
     sw    $t3, 16($sp)        # Save pixel value i.e the color
     # lw $t3, COLOR_WHITE
     # sw   $t3, 0($t1)          # Load pixel color from data board
-    jal   check_vertical_match
     jal   check_horizontal_match
-    # jal   check_vertical_match
+    jal   check_vertical_match
 
 ##################
     lw    $t0, 0($sp)         # Restore board address
@@ -1302,17 +1320,15 @@ check_horiz_3:
 horiz_match_found: # clear on bitmap display
     lw    $t0, 0($sp)          # board address
     lw    $t1, 4($sp)          # bitmap address
-    lw    $t2, 8($sp)         # Restore row index
-    lw    $t8, 12($sp)        # Restore column index
     
     # Clear matched blocks in the board
-    lw $t3, COLOR_BLACK
     sw   $zero, 0($t0)
     sw   $zero, 4($t0)
     sw   $zero, 8($t0)
     sw   $zero, 12($t0)
     
     # Clear matched blocks in the bitmap
+    lw $t3, COLOR_BLACK
     sw   $t3, 0($t1)
     sw   $t3, 4($t1)
     sw   $t3, 8($t1)
@@ -1354,15 +1370,14 @@ check_vert_3:
 vert_match_found:
     lw    $t0, 0($sp)          # board address
     lw    $t1, 4($sp)          # bitmap address
-    lw    $t2, 8($sp)         # Restore row index
-    lw    $t8, 12($sp)        # Restore column index
+    
     # Clear matched blocks in the board
     sw   $zero, 0($t0)
     sw   $zero, 48($t0)
     sw   $zero, 96($t0)
     sw   $zero, 144($t0)
-    lw $t3, COLOR_BLACK
     # Clear matched blocks in the display
+    lw $t3, COLOR_BLACK
     sw   $t3, 0($t1)
     sw   $t3, 128($t1)
     sw   $t3, 256($t1)
