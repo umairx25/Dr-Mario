@@ -70,6 +70,7 @@ KEY_Z:          .word 0x7A    # rotate left
 KEY_W:          .word 0x77    # general rotate
 KEY_Q:          .word 0x71    # quit
 KEY_P:          .word 0x70    # pause
+KEY_R:          .word 0x72
 
 ##############################################################################
 # Mutable Data  start from 1     #spawn new pills at 22,5
@@ -233,10 +234,7 @@ data_board: #pixel representation of the viruses
 
 
 viruses: #these store the display positions of the viruses, to align them with data_board, offset by -5.
-  .word 0, 0
-        0, 0
-        0, 0
-        0, 0
+  .word 0, 0, 0, 0
 
 ##############################################################################
 # Code
@@ -631,11 +629,17 @@ draw_curr:
     lw $s3, next_capsule_color1
     lw $s4, next_capsule_color2
     add $t4, $s3, $s4
+    # lw $a2, capsule_x       # X-coordinate (column)
+    # lw $a3, capsule_y       # Y-coordinate (row)
+    # li   $t0, 3         # Load immediate value 3 into temporary register $t0
+    # sne  $a3, $a2, $t0  # Set $a3 to 1 if $a2 == $t0, otherwise set $a3 to 0
+    # add $t4, $t4, $a3
     bne $t4, 0, reuse_old_next
 
     addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
     sw    $ra, 0($sp)        # Save return address
     
+    jal game_over
     jal draw_current
     jal draw_nxt
     
@@ -650,8 +654,8 @@ reuse_old_next:
     
     lw $s1, capsule_color1  # Load left side of capsule color
     lw $s2, capsule_color2  # Load right side of capsule color
-    # move $s1, $s3
-    # move $s2, $s4
+    # move $s1, $s4   #this and line below were commented out before
+    # move $s2, $s3
     sw $s1, capsule_color1
     sw $s2, capsule_color2 
     # Compute the memory address from (x, y)
@@ -859,6 +863,9 @@ keyboard_input:                     # A key is pressed
     
     lw $t3, KEY_W
     beq $t2, $t3, respond_to_W
+    
+    lw $t3, KEY_R
+    beq $t2, $t3, respond_to_R
 
     j game_loop
     
@@ -960,6 +967,16 @@ respond_to_S: #move capsule down when S is pressed
     
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position (column)
+  
+    #game over logic
+    bne $t1, 5, continue_S
+    lw $t0, ADDR_DSPL       # Load base address of display
+    jal calculate_offset    #t4 gives back the final offset
+    lw $t2, 128($t4)        #get the square right below current, if occupied, exit
+    bne $t2, 0, exit
+    
+    
+ continue_S:   
     lw $t5, capsule_orient
     
     jal check_vertical
@@ -1241,6 +1258,66 @@ unpause:
     j key_check              # Allows other keys to be pressed
     
 
+respond_to_R:
+    # j main
+    # Reset capsule position
+    lw $t0, ADDR_DSPL
+    lw $t7, COLOR_BLACK
+    lw $t6, capsule_x
+    lw $t1, capsule_y
+    jal calculate_offset
+    
+    move $t1, $t4
+    
+    move $t2, $t7
+    sw $t1, capsule_color1
+    sw $t2, capsule_color2
+    
+    li   $t0, 10
+    sw   $t0, capsule_x
+    li   $t0, 2
+    sw   $t0, capsule_y
+
+    # Reset capsule orientation and colors
+    li   $t0, 0
+    sw   $t0, capsule_orient
+    sw   $t0, capsule_color1
+    sw   $t0, capsule_color2
+    sw   $t0, next_capsule_color1
+    sw   $t0, next_capsule_color2
+
+    # Reset viruses and score
+    li   $t0, 4
+    sw   $t0, viruses_left
+    li   $t0, 0
+    sw   $t0, score
+
+    # Reset game state flags
+    li   $t0, 1
+    sw   $t0, GAME_ACTIVE
+    li   $t0, 0
+    sw   $t0, GAME_PAUSED
+
+    # Clear board (12 * 24 = 288 bytes)
+    la   $t1, board
+    li   $t2, 288          # Loop counter
+    
+clear_board:
+    sw   $zero, 0($t1)     # Store 0 at board[i]
+    addi $t1, $t1, 4       # Move to next word
+    subi $t2, $t2, 4       # Decrement counter
+    bnez $t2, clear_board  # Loop until counter reaches 0
+    
+    li $a0, 1000                   # Sleep for 1 second
+    li $v0, 32                      # Syscall for sleep
+    syscall
+
+    jr   $ra               # Return
+
+
+
+
+
 #####################################
 # Board Routines
 #####################################
@@ -1372,12 +1449,18 @@ init_virus_loop:
     mul $t3, $s5, 128       # y (row) * 128 (row offset)
     add $t3, $t2, $t3       # total offset
     lw $t0, ADDR_DSPL       # Load base address of display
-    add $t3, $t3, $t0       # final address = base + offset
+    add $t3, $t3, $t0       # final address = base + offset *****
     sw $t7, 0($t3)          # draw virus to display
     
-    li   $a0, 32                 # ASCII space (' ')
-    li   $v0, 11                 # Syscall to print character
-    syscall                      # Print space
+    la $t5, viruses
+    mul $t2, $t9, 4         # $t2 = i * 4 (byte offset for i-th element)
+    add $t2, $t5, $t2       # $t2 = address of viruses[i]
+    
+    
+    
+    # li   $a0, 32                 # ASCII space (' ')
+    # li   $v0, 11                 # Syscall to print character
+    # syscall                      # Print space
     
     addi $t9, $t9, 1        # add 1 to virus counter
 skip_virus_place:
@@ -1661,3 +1744,44 @@ next_column2:
     lw    $ra, 0($sp)             # Restore return address
     addiu $sp, $sp, 4             # Pop stack
     jr   $ra                       # Return
+
+game_over:
+    # Load base address of display
+    lw $t0, ADDR_DSPL
+    li $t2, 5 #y value 
+    li $t5, 9 #x values were insterested in
+    # lw $t6, 10 #^^
+    # lw $t7, 11 #^^
+
+    mul $t5, $t5, 4         # x (column) * 4 (column offset)
+    mul $t3, $t2, 128       # y (row) * 128 (row offset)
+    add $t4, $t5, $t3       # total offset
+    add $t4, $t4, $t0       # final address = base + offset
+    
+    lw $t3, 0($t4) #(9,4)
+    bnez $t3, exit
+    lw $t3, 4($t4) #(10,4)
+    bnez $t3, exit
+    lw $t3, 8($t4) #(11,4)
+    bnez $t3, exit
+    
+    jr $ra
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # lw $t5, capsule_orient
+    # beq $t5, 1, draw_vert 
+    
+    # # Store existing capsule colors in memory
+    # sw $s1, 0($t4)  
+    # sw $s2, 4($t4)  
