@@ -256,11 +256,13 @@ main:
     #implement gravity, capsule goes down 1 block per second
     li $t1, 0
     li $s6, 520 # 1000 ms = 1 second
-    
+    # la $t6, game_over_pixels
+    # jal draw_game_over #testing
     jal draw_bottle
     jal init_viruses
     jal draw_dr_mario
     jal draw_viruses # On the side panel
+    # jal draw_game_over #testing
 
 game_loop:
     #check time w syscall 30
@@ -840,8 +842,10 @@ keyboard_input:                     # A key is pressed
 
     j game_loop
     
-respond_to_Q: # Quit Game 
-    j exit
+respond_to_Q: # Quit Game
+    jal draw_number
+    li $v0, 10             # Terminate the program gracefully
+    syscall
 
 respond_to_A: # Move left
     lw $t6, capsule_x       # Load current x position
@@ -1244,10 +1248,6 @@ unpause:
     j key_check              # Allows other keys to be pressed
 
 respond_to_R:
-    # Save return address
-    addi $sp, $sp, -4       # Move stack pointer to make space
-    sw $ra, 0($sp)          # Save $ra (return address) on stack
-
     # Reset capsule position and colors
     lw $t7, COLOR_BLACK     # Load black color
     li $t0, 10              # Default X position for capsule
@@ -1286,8 +1286,8 @@ respond_to_R:
     la $t1, board           # Load address of board
     li $t2, 288             # 288 bytes to clear
 
-clear_board:
-    jal clear_dspl
+    jal clear_dspl  #clear board was here before
+    jal clear_board
 
     # Sleep for 1 second
     li $a0, 1000            # 1000 milliseconds = 1 second
@@ -1297,19 +1297,13 @@ clear_board:
     jal init_viruses
     li $s6, 520
 
-    # Restore return address and adjust stack pointer
-    lw $ra, 0($sp)          # Restore $ra (return address)
-    addi $sp, $sp, 4        # Adjust stack pointer back
-    jr $ra                  # Jump back to the caller (return to the game loop)
-
+    j game_loop
 
 # Helper function to clear the play area
 clear_dspl:                  
     lw   $t6, ADDR_DSPL         # Load base display address
-    li   $t3, 5                 # Start X, set starting x coordinates for drawing
-    li   $t4, 5                 # Start Y, set starting y coordinates for drawing
-    li   $t5, 12                # Number of cols
-    li   $t7, 24                # Number of rows
+    li   $t5, 5                 # Start X, set starting x coordinates for drawing
+    li   $t7, 5                 # Start Y, set starting y coordinates for drawing
     addiu $sp, $sp, -4          # Save $ra before calling another function
     sw    $ra, 0($sp)        
     
@@ -1328,25 +1322,55 @@ x_loop3:
 
     # Clear the pixel (set to zero)
     sw    $zero, 0($t9)         # Store 0 at the computed address
-    move $a0, $t3
-    move $a1, $t4
-    li $a2, 0
-    jal set_board_cell
+    # move $a0, $t5
+    # move $a1, $t7
+    # li $a2, 0
+    # jal set_board_cell
     
     addi $t8, $t8, 1            # Next column
-    addi $t3, $t3, 1
-    bne  $t8, $t5, x_loop3      # If not end of row, continue
+    addi $t5, $t5, 1
+    bne  $t8, 12, x_loop3      # If not end of row, continue
 
     # Move to next row (128 bytes per row in the display)
     add   $t6, $t6, 128         # Y offset for next row
-    addi $t4, $t4, 1
-    addi $t2, $t2, 1            # Next row
-    bne  $t2, $t7, y_loop3      # If not 24 rows, continue
+    addi $t2, $t2, 1
+    addi $t7, $t7, 1            # Next row
+    bne  $t2, 24, y_loop3      # If not 24 rows, continue
 
     lw    $ra, 0($sp)           # Restore return address
     addiu $sp, $sp, 4           # Pop stack
     jr   $ra                    # Return
-
+    
+clear_board:
+    addi $sp, $sp, -4        # Move stack pointer to make space
+    sw $ra, 0($sp)           # Save $ra (return address) on stack
+    li   $t0, 24             # Number of rows
+    li   $t1, 12             # Number of columns
+    la   $t2, data_board     # Base address of grid
+    li   $t3, 0       # Row index i
+outer_loop:
+    bge  $t3, $t0, end_board_traversal # if i >= rows, exit
+    li   $t4, 0       # Column index j
+inner_loop:
+    bge  $t4, $t1, next_row  # if j >= cols, go to next row
+    
+    mul  $t5, $t3, $t1  # i * cols
+    add  $t5, $t5, $t4  # i * cols + j
+    mul  $t5, $t5, 4  # (i * cols + j) * 4
+    add  $t5, $t5, $t2  # base + offset
+    sw   $zero, 0($t5)  # Set grid[i][j] = 0
+    
+    addi $t4, $t4, 1    # j++
+    j inner_loop
+    
+next_row:
+    addi $t3, $t3, 1    # i++
+    j outer_loop
+    
+end_board_traversal:
+    lw    $ra, 0($sp)           # Restore return address
+    addiu $sp, $sp, 4           # Pop stack
+    jr   $ra                    # Return
 
 
 #####################################
@@ -1656,7 +1680,11 @@ pause_sound:
     # jr $ra
 
 draw_game_over:
+    addiu $sp, $sp, -4        # Push return address onto stack
+    sw    $ra, 0($sp)
+    
     jal clear_dspl
+    jal clear_board
     
     lw   $t6, ADDR_DSPL         # Load base display address
     la   $t1, game_over_pixels   # Load base address of dr mario pixel data
@@ -1665,11 +1693,8 @@ draw_game_over:
     li   $t5, 10                #number of rows
     li   $t7, 10                #number of columns
     
-    addiu $sp, $sp, -4        # Push return address onto stack
-    sw    $ra, 0($sp)
     
-    jal  draw_pixels      # Draw Dr. Mario
-    
+    jal  draw_pixels          # Draw Dr. Mario
     lw   $t0, ADDR_KBRD               # $t0 = base address for keyboard  
 game_over_loop:
     lw $t6, GAME_PAUSED
@@ -1689,11 +1714,6 @@ pause_r:
 unpause_r:
     sw $zero, GAME_PAUSED
     jal respond_to_R
-    
-    # lw    $ra, 0($sp)         # Restore return address
-    # addiu $sp, $sp, 4         # Pop stack
-    # jr   $ra                  # Return after drawing Mario
-
 
 #####################################
 # CHECK FOR MATCHES
@@ -1894,7 +1914,7 @@ virus_points:
     blt   $a0, 4, not_virus   # If $a0 < 4, not a virus
     bgt   $a0, 6, not_virus   # If $a0 > 6, not a virus
     lw    $t9, score
-    addi  $t9, $t9, 10         # Increment score by 5 for every virus disappears
+    addi  $t9, $t9, 15         # Increment score by 5 for every virus disappears
     sw    $t9, score           # Store score
     
     lw    $t9, viruses_left    # Decrease the number of viruses
