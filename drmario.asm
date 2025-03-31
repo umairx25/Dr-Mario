@@ -14,7 +14,6 @@
 # - Display height in pixels:   32
 # - Base Address for Display:   0x10008000 ($gp)
 ##############################################################################
-
     .data
 ##############################################################################
 # Immutable Data
@@ -91,8 +90,7 @@ board:                  .space 1152                 # Board array (12*24 bytes)
 viruses_left:           .word 4                     # Start with 4 viruses
 score:                  .word 0                            # Start with 4 viruses
 
-
-dr_mario_pixels: # pixel representation of dr mario 
+dr_mario_pixels: # Pixel representation of dr mario 
     .word 0x000000, 0xFFCB8E, 0xFFB570, 0x000000, 0xABABAB, 0xACACAC, 0x974A00, 0x964B00, 0x954B00, 0x000000
     .word 0x000000, 0xFDFDFE, 0xFCFFFA, 0xFFB66F, 0x000000, 0x000000, 0xFFB671, 0xFFB770, 0xFFB96D, 0x000000
     .word 0x000000, 0xFFFBFE, 0xFFFFFF, 0x000000, 0xFEB46E, 0xFFB56E, 0xFFB56E, 0xFFB56E, 0x954B00, 0x000000
@@ -104,7 +102,7 @@ dr_mario_pixels: # pixel representation of dr mario
     .word 0x000000, 0x9A4E1D, 0x964B00, 0x964B00, 0x000000, 0x000000, 0x964B00, 0x964B00, 0x954B00, 0x000000
     .word 0x000000, 0x8C5434, 0x8B4712, 0x8D4816, 0x000000, 0x000000, 0x894A12, 0x864713, 0x874A17, 0x000000
 
-virus_pixels: #pixel representation of the viruses
+virus_pixels: # Pixel representation of the viruses
     .word 0x2F2A2E, 0x2B2C32, 0x698CEA, 0x6D90EE, 0x6585E2, 0x638BEC, 0x658BEA, 0x6F90EF, 0x6587E9, 0x2A3250
     .word 0x242A2A, 0x6A8FED, 0x7399F3, 0xAF4A54, 0x698FE8, 0x6A8EEE, 0x8D9EFF, 0xD8C358, 0x423D31, 0x678BEB
     .word 0x6186DE, 0xCE434D, 0x302E31, 0x312D34, 0x7395EF, 0x7698F3, 0xCEBE5A, 0xD9C554, 0xD7C251, 0x587AD2
@@ -188,7 +186,7 @@ number_7:  # 5x7 grid representing the number 0.
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
 
-number_8: #general number grid, 0 locations are never used.
+number_8: # General number grid, 0 locations are never used.
     .word 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
     .word 0xFFFFFF, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0xFFFFFF, 0x000000, 0x000000, 0x000000, 0xFFFFFF
@@ -206,7 +204,7 @@ number_9:  # 5x7 grid representing the number 0.
     .word 0x000000, 0x000000, 0x000000, 0x000000, 0xFFFFFF
     .word 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0x000000
 
-data_board: #pixel representation of the viruses
+data_board: # Pixel representation of the viruses
     .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -233,8 +231,8 @@ data_board: #pixel representation of the viruses
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
-viruses: #these store the display positions of the viruses, to align them with data_board, offset by -5.
-  .word 0, 0, 0, 0  #0xFFFFFF
+viruses_pos: # These store the display positions of the viruses, to align them with data_board, offset by -5.
+  .word 0, 0, 0, 0
 
 game_over_pixels:
     .word 0x000000, 0xC11C84, 0xC11C84, 0x000000, 0x000000, 0x000000, 0x000000, 0xC11C84, 0xC11C84, 0x000000
@@ -257,23 +255,20 @@ game_over_pixels:
 main:
     #implement gravity, capsule goes down 1 block per second
     li $t1, 0
-    li $s6, 500 # 1000 ms = 1 second
-    
+    li $s6, 520 # 1000 ms = 1 second
+    # la $t6, game_over_pixels
+    # jal draw_game_over #testing
     jal draw_bottle
     jal init_viruses
     jal draw_dr_mario
-    jal draw_viruses # on the side panel
+    jal draw_viruses # On the side panel
+    # jal drop_capsules
+    # jal draw_game_over #testing
 
 game_loop:
     #check time w syscall 30
-    # 3. Draw the screen
     jal draw_number
     jal draw_curr
-    # 1a. Check if key has been pressed
-    # 1b. Check which key has been pressed
-    # 1b. Check which key has been pressed
-    # 2a. Check for collisions
-	# 2b. Update locations (capsules)
     jal key_check
 
     # 5. Go back to Step 1
@@ -610,108 +605,94 @@ check_vertical:
    sgt $t2, $t1, 1
    slt $t3, $t1, 28
    and $t4, $t2, $t3
-
-   beqz $t4, reset_next 
    
    addi $sp, $sp, -4       # Move stack pointer
    sw $ra, 0($sp)          # Save $ra on stack
-   
-   # Return directly without loopingfkey
+
    lw $ra, 0($sp)    
    addi $sp, $sp, 4  
    jr $ra
-
-reset_next:
-    addi $sp, $sp, -4       # Move stack pointer
-    sw $ra, 0($sp)          # Save $ra on stack
-   
-    li $t0, 0
-    sw $t0, next_capsule_color1
-    sw $t0, next_capsule_color2  
-    
-    lw $ra, 0($sp)    
-    addi $sp, $sp, 4  
-    jr $ra
-
 
 #####################################
 # Draw the Capsule
 #####################################
 
 draw_curr:
+    addiu $sp, $sp, -4       # Allocate stack space
+    sw    $ra, 0($sp)        # Save return address
+    
+    lw $s1, capsule_color1  # Load left side of capsule color
+    lw $s2, capsule_color2  # Load right side of capsule color
+    add $t4, $s1, $s2
+    beqz $t4, reuse_old_next # If we've reached the end of the rows, current capsule colours will be 0 and we need to swap with next capsule colours
+    
+    jal draw_current # Draw the current capsule
+    
+    lw    $ra, 0($sp)         # Restore return address
+    addiu $sp, $sp, 4  
+    jr $ra
+
+reuse_old_next: #next goes to current and draw cap is called to draw current and get random colours for new next. New next is drawn.
+    addiu $sp, $sp, -4       # Allocate stack space
+    sw    $ra, 0($sp)        # Save return address
+    
     lw $s3, next_capsule_color1
     lw $s4, next_capsule_color2
-    add $t4, $s3, $s4
-    # lw $a2, capsule_x       # X-coordinate (column)
-    # lw $a3, capsule_y       # Y-coordinate (row)
-    # li   $t0, 3         # Load immediate value 3 into temporary register $t0
-    # sne  $a3, $a2, $t0  # Set $a3 to 1 if $a2 == $t0, otherwise set $a3 to 0
-    # add $t4, $t4, $a3
-    bne $t4, 0, reuse_old_next
-
-    addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
-    sw    $ra, 0($sp)        # Save return address
+    add $t4, $s3, $s4 
+    beqz $t4, initialize_capsules # If both next colours and current colours are 0, we are at the start of the game, so initialize
     
-    # jal game_over
-    jal draw_current
-    jal draw_nxt
+    sw $s3, capsule_color1  # swap colours
+    sw $s4, capsule_color2
+    sw $zero, next_capsule_color1  # Zero the next capsule colours
+    sw $zero, next_capsule_color2
+    
+    li $s5, 0            
+    jal randomize_capsule  # Choose the new next capsule colours
+    jal draw_nxt           # Draw the new next capsule in mario's hand
+    
+    jal draw_current # redraw the current capsule at start position
+
     
     lw    $ra, 0($sp)         # Restore return address
-    addiu $sp, $sp, 4         # Pop stack
-    
+    addiu $sp, $sp, 4
     jr $ra
+    
+initialize_capsules:
+    li $s5, 0            
+    jal randomize_capsule  # Choose the next capsule colours
+    li $s5, 1            
+    jal randomize_capsule  # Choose the current capsule colours
 
-reuse_old_next:
+    jal draw_nxt           # Draw the new next capsule in mario's hand
+    jal draw_current       # Draw the current capsule at start position
+    
+    lw    $ra, 0($sp)      # Restore return address
+    addiu $sp, $sp, 4
+    jr $ra
+    
+draw_current: # does nothing but call draw_cap for the current capsule
     addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
     sw    $ra, 0($sp)        # Save return address
     
-    lw $s1, capsule_color1  # Load left side of capsule color
-    lw $s2, capsule_color2  # Load right side of capsule color
-    # move $s1, $s4   #this and line below were commented out before
-    # move $s2, $s3
-    sw $s1, capsule_color1
-    sw $s2, capsule_color2 
     # Compute the memory address from (x, y)
     lw $a2, capsule_x       # X-coordinate (column)
-    lw $a3, capsule_y       # Y-coordinate (row)
-    li $s5, 0
-    
+    lw $a3, capsule_y       # Y-coordinate (row)    
+    lw $a0, capsule_color1  # Load left side of capsule color
+    lw $a1, capsule_color2  # Load right side of capsule color
     jal draw_cap
-    
+
     lw    $ra, 0($sp)         # Restore return address
     addiu $sp, $sp, 4         # Pop stack
-    
-    jr $ra
-    
-draw_current:
-    addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
-    sw    $ra, 0($sp)        # Save return address
-    
-    lw $s1, capsule_color1  # Load left side of capsule color
-    lw $s2, capsule_color2  # Load right side of capsule color
-    # Compute the memory address from (x, y)
-    lw $a2, capsule_x       # X-coordinate (column)
-    lw $a3, capsule_y       # Y-coordinate (row)
-    li $s5, 0
-    
-    jal draw_cap
-    
-    lw    $ra, 0($sp)         # Restore return address
-    addiu $sp, $sp, 4         # Pop stack
-    
     jr $ra
 
-draw_nxt:
+draw_nxt: # calls draw_cap for the next capsule's specific location
     addiu $sp, $sp, -4       # Allocate stack space (8 bytes)
     sw    $ra, 0($sp)        # Save return address
     
-    lw $s1, next_capsule_color1  # Load left side of capsule color
-    lw $s2, next_capsule_color2  # Load right side of capsule color
-    # Compute the memory address from (x, y)
+    lw $a0, next_capsule_color1  # Load left side of capsule color
+    lw $a1, next_capsule_color2  # Load right side of capsule color
     li $a2, 22       # X-coordinate (column)
     li $a3, 9       # Y-coordinate (row)
-    li $s5, 1
-    
     jal draw_cap
     
     lw    $ra, 0($sp)         # Restore return address
@@ -719,11 +700,10 @@ draw_nxt:
     
     jr $ra
 
-draw_cap:
-    # Load stored capsule colors
-    add $t4, $s1, $s2       # Check if both are zero
-    beq $t4, 0, randomize_capsule  # If both are zero, randomize a new capsule
 
+#a0, a1 = colour1, colour2, a2= xposition, a3= yposition
+draw_cap: # draws the capsule whereever it may be
+    
     # Load base address of display
     lw $t0, ADDR_DSPL 
 
@@ -735,18 +715,17 @@ draw_cap:
     lw $t5, capsule_orient
     beq $t5, 1, draw_vert 
     
-    # Store existing capsule colors in memory
-    sw $s1, 0($t4)  
-    sw $s2, 4($t4)  
+    # Store capsule colors in bitmap display
+    sw $a0, 0($t4)  
+    sw $a1, 4($t4)  
 
     jr $ra  # Return
 
 draw_vert:
-    sw $s1, 0($t4)  
-    sw $s2, -128($t4) #switch s1 and s2 before
+    sw $a0, 0($t4)  
+    sw $a1, -128($t4)
     jr $ra  # Return
     
-
 randomize_capsule:
     # Load base address of display
     lw $t0, ADDR_DSPL 
@@ -755,12 +734,7 @@ randomize_capsule:
     lw $t8, COLOR_BLUE      
     lw $t9, COLOR_RED       
     lw $t6, COLOR_YELLOW     
-    lw $t7, COLOR_BLACK         
-
-    mul $t2, $a2, 4        
-    mul $t3, $a3, 128      
-    add $t4, $t2, $t3      
-    add $t4, $t4, $t0      
+    lw $t7, COLOR_BLACK      
 
     # Generate a random left capsule color
     li $v0, 42      
@@ -773,18 +747,15 @@ randomize_capsule:
     beq $a0, 2, pick_left_red
     beq $a0, 3, pick_left_yellow
 
-pick_left_blue:
-    sw $t8, 0($t4)         
+pick_left_blue:        
     move $s1, $t8          
     j right_capsule_colour 
 
-pick_left_red:
-    sw $t9, 0($t4)         
+pick_left_red:      
     move $s1, $t9          
     j right_capsule_colour 
 
-pick_left_yellow:
-    sw $t6, 0($t4)         
+pick_left_yellow:       
     move $s1, $t6          
     j right_capsule_colour 
 
@@ -799,25 +770,20 @@ right_capsule_colour:
     beq $a0, 2, pick_right_red
     beq $a0, 3, pick_right_yellow
 
-pick_right_blue:
-    sw $t8, 4($t4)        
+pick_right_blue:       
     move $s2, $t8        
-    # j store_capsule_colors 
-    beq $s5, 0, store_capsule_colors
-    beq $s5, 1, store_nextcapsule_colors
+    beq $s5, 1, store_capsule_colors
+    beq $s5, 0, store_nextcapsule_colors
 
-pick_right_red:
-    sw $t9, 4($t4)        
+pick_right_red:      
     move $s2, $t9
-    beq $s5, 0, store_capsule_colors
-    beq $s5, 1, store_nextcapsule_colors
-    # j store_capsule_colors 
+    beq $s5, 1, store_capsule_colors
+    beq $s5, 0, store_nextcapsule_colors
 
-pick_right_yellow:
-    sw $t6, 4($t4)        
+pick_right_yellow:       
     move $s2, $t6 
-    beq $s5, 0, store_capsule_colors
-    beq $s5, 1, store_nextcapsule_colors
+    beq $s5, 1, store_capsule_colors
+    beq $s5, 0, store_nextcapsule_colors
 
 store_capsule_colors:
     # Store colors in global variables for next check
@@ -830,11 +796,6 @@ store_nextcapsule_colors:
     sw $s1, next_capsule_color1
     sw $s2, next_capsule_color2
     jr $ra
-
-
-
-
-
 
 #####################################
 # Keyboard Input and Control Handlers  
@@ -882,12 +843,13 @@ keyboard_input:                     # A key is pressed
 
     j game_loop
     
-respond_to_Q: # Quit Game 
-    j exit
+respond_to_Q: # Quit Game
+    jal draw_number
+    li $v0, 10             # Terminate the program gracefully
+    syscall
 
 respond_to_A: # Move left
-    jal plink_sound
-    lw $t6, capsule_x       # Load current x position (column)
+    lw $t6, capsule_x       # Load current x position
     lw $t1, capsule_y       # Load current y position
     move $t7, $t6            
     addi $t7, $t7, -1       # Store potential x position in t7
@@ -897,9 +859,10 @@ respond_to_A: # Move left
     
     move $a0, $t7
     move $a1, $t1
-    li $a2, 0 # 0 means we're moving left
-    move $a3, $t5 # 0 means capsule is currently horizontal
+    li $a2, 0               # 0 means we're moving left
+    move $a3, $t5           # 0 means capsule is currently horizontal
     jal check_leftright_translate
+    jal plink_sound
     
     jal check_vertical
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
@@ -915,18 +878,14 @@ respond_to_A: # Move left
     addi $t6, $t6, -1       # Move actual x postion left (x = x - 1)
     sw $t6, capsule_x       # Store updated x position
     
-    # Then redraw capsule at new position
-    jal draw_curr
     j game_loop
     
     left_vert_A:
-        sw $t7, 0($t4)          # Store black at (x+1, y)
-        sw $t7, -128($t4)       # Store black at (x+1, y)
+        sw $t7, 0($t4)          # Store black at (x, y)
+        sw $t7, -128($t4)       # Store black at (x, y-1)
         addi $t6, $t6, -1       # Move actual x postion left (x = x - 1)
         sw $t6, capsule_x       # Store updated x position
     
-        # Then redraw capsule at new position
-        jal draw_curr
         j game_loop
         
 # $a0=x-position, $a1=y-position, $a2=direction(0=left,1=right), $a3=orientation
@@ -971,22 +930,18 @@ check_leftright_translate:
      
 
 respond_to_S: #move capsule down when S is pressed
-    jal plink_sound
-    
-    lw $t7, COLOR_BLACK
-    # lw $t6, score
-    # addi $t6, $t6, 1
-    # sw $t6, score
-    
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position (column)
   
     #game over logic
     bne $t1, 5, continue_S
     lw $t0, ADDR_DSPL       # Load base address of display
-    jal calculate_offset    #t4 gives back the final offset
-    lw $t2, 128($t4)        #get the square right below current, if occupied, exit
-    bne $t2, 0, exit        #game over logic
+    # jal calculate_offset    #t4 gives back the final offset
+    addi $a1, $t1, 1
+    move $a0, $t6
+    jal get_board_cell
+    # lw $t2, 128($t4)        #get the square right below current, if occupied, exit
+    bne $v0, 0, exit        #game over logic
     
     
  continue_S:   
@@ -995,9 +950,10 @@ respond_to_S: #move capsule down when S is pressed
     jal check_vertical
     beq $t4, 0, redraw_capsules   # If out of bounds (t4 == 0), don't move
     
-    bgt $t1, 5, call_can_down
+    bgt $t1, 4, call_can_down
         
     continue_s_movement:
+      jal plink_sound
       lw $t1, capsule_y       # Load current y position (column) (fix the function use arg regs)
       lw $t0, ADDR_DSPL       # Load base address of display
       jal calculate_offset
@@ -1007,9 +963,7 @@ respond_to_S: #move capsule down when S is pressed
       sw $t7, 4($t4)          # Store black at (x+1, y)
       addi $t1, $t1, 1        # Move down (y = y + 1)
       sw $t1, capsule_y       # Store updated y position
-      
-      # Then redraw capsule at new position
-      jal draw_curr
+
       j game_loop
     
     down_vert_S:
@@ -1019,7 +973,6 @@ respond_to_S: #move capsule down when S is pressed
         addi $t1, $t1, 1        # Move down (y = y + 1)
         sw $t1, capsule_y       # Store updated y position
 
-        jal draw_curr
         j game_loop
     
     call_can_down:
@@ -1036,6 +989,7 @@ respond_to_S: #move capsule down when S is pressed
         
         addi $a1, $a1, 1           # add 1 to the y-coordinate to move it to potential location
         beq $a2, 1, can_down_vert
+        
         move $t7, $a0
         move $t8, $a1
         jal get_board_cell
@@ -1067,9 +1021,7 @@ redraw_capsules:
     lw $a3, capsule_color1
     jal get_index
     move $a2, $v0
-    # li   $t0, 5                  # Load the value 5             CODE TO SET THE GRID'S VALUE
-    # sw   $t0, 0($t1)             # Store 5 in data_board
-    jal set_board_cell  # save position in grid
+    jal set_board_cell  # save position
     
     lw $t1, capsule_orient
     beq $t1, 1, save_top_cell_vert # If capsule is vertical we save differently
@@ -1095,11 +1047,11 @@ redraw_capsules:
     sw $t6, capsule_color1
     sw $t6, capsule_color2
     
-    jal reset_next
-    li $s6, 1000
-
+    # jal reset_next
+    li $s6, 520
+    
     jal check_matches
-    # jal check_unsupported
+    jal drop_capsules
     j game_loop              # Continue game loop
     
     save_top_cell_vert:
@@ -1124,14 +1076,13 @@ redraw_capsules:
         sw $t6, capsule_color1
         sw $t6, capsule_color2
         
-        jal reset_next
-        li $s6, 1000
+        li $s6, 520
         
+        jal check_matches
         sw $zero, capsule_orient
         j game_loop              # Continue game loop
     
 respond_to_D:
-    jal plink_sound
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
     move $t7, $t6            
@@ -1140,14 +1091,12 @@ respond_to_D:
     jal check_horz          # Call check_horz with potential x position
     beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
     
-    jal check_vertical
-    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
-    
     move $a0, $t7
     move $a1, $t1
     li $a2, 1 # 0 means we're moving right
     move $a3, $t5 # 0 means capsule is currently horizontal
     jal check_leftright_translate
+    jal plink_sound
     
     lw $t1, capsule_y       # Load current y position
     lw $t0, ADDR_DSPL       # Load base address of display
@@ -1160,8 +1109,6 @@ respond_to_D:
     addi $t6, $t6, 1        # Move actual x positon left (x = x - 1)
     sw $t6, capsule_x       # Store updated x position
     
-    # Then redraw capsule at new position
-    jal draw_curr
     j game_loop
     
     right_vert_D:
@@ -1171,8 +1118,6 @@ respond_to_D:
         addi $t6, $t6, 1        # Move actual x positon left (x = x - 1)
         sw $t6, capsule_x       # Store updated x position
     
-        # Then redraw capsule at new position
-        jal draw_curr
         j game_loop     
 
 respond_to_W:
@@ -1182,58 +1127,94 @@ respond_to_W:
     lw $t6, capsule_x       # Load current x position (column)
     lw $t1, capsule_y       # Load current y position
     lw $t0, ADDR_DSPL       # Load base address of display
+    
+    sgt $t2, $t1, 1         # Do not rotate if in the lid
+    slt $t3, $t1, 5
+    and $t2, $t2, $t3
+    beq $t2, 1, game_loop
+    
     beq $s4, 0, horz_to_vert
     beq $s4, 1, vert_to_horz
 
 horz_to_vert:
+    move $a0, $t6
+    move $a1, $t1
+    move $a2, $s4
+    jal can_rotate
+    
+    lw $s4, capsule_orient 
+    lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
     jal calculate_offset
     lw $t7, COLOR_BLACK
     sw $t7, 4($t4)          # Store black at (x+1, y)
-    addi $s4, $s4, 1
-    
-    jal check_vertical
-    beq $t4, 0, game_loop   # If out of bounds (t4 == 1), don't move
+    addi $s4, $s4, 1        # Change orientation to vertical
     
     lw $t2, capsule_color1
     lw $t3, capsule_color2
-    move $t4, $t2
-    move $t2, $t3
-    move $t3, $t4
-    sw $t2, capsule_color1
-    sw $t3, capsule_color2
-    lw $t2, capsule_color1  # Load left capsule color (horizontal)
-    lw $t3, capsule_color2  # Load right capsule color (horizontal)
-    move $t4, $t2           # Temp storage
-    move $t2, $t3           # Swap: left -> bottom, right -> top
-    move $t3, $t4
-    sw $t2, capsule_color1  # Store new top color
-    sw $t3, capsule_color2  # Store new bottom color
-
+    sw $t3, capsule_color1
+    sw $t2, capsule_color2
     
     sw $s4, capsule_orient
-    jal draw_curr
     j game_loop
 
 vert_to_horz:
+    move $a0, $t6
+    move $a1, $t1
+    move $a2, $s4
+    jal can_rotate
+    
+    lw $s4, capsule_orient 
+    lw $t6, capsule_x       # Load current x position (column)
+    lw $t1, capsule_y       # Load current y position
+    lw $t0, ADDR_DSPL       # Load base address of display
     jal calculate_offset
-    lw $t7, COLOR_BLACK
-    sw $t7, -128($t4)          # Store black at (Y-1, y)
+    sw $t7, -128($t4)          # Store black at (x+1, y)
+    addi $s4, $s4, -1          # Change orientation to horizontal
     
-    addi $s4, $s4, -1 
-    jal check_vertical
-    beq $t4, 0, game_loop       # If out of bounds (t4 == 1), don't move
-    
-    lw $t2, capsule_color1  # Load current top color
-    lw $t3, capsule_color2  # Load current bottom color
-    move $t4, $t2           # Temporary storage for swap
-    move $t2, $t3           # Swap colors
-    move $t3, $t4           # Swap back
-    sw $t2, capsule_color1  # Store new left color
-    sw $t3, capsule_color2  # Store new right color
-
     sw $s4, capsule_orient
-    jal draw_curr
     j game_loop
+
+# $a0=x-position, $a1=y-position, $a2=orientation
+can_rotate:
+        addi $sp, $sp, -4       # Move stack pointer
+        sw $ra, 0($sp)          # Save $ra on stack
+        
+        move $t7, $a0
+        move $t8, $a1
+        addi $a1, $a1, -1          # Subtract 1 from the y-coordinate to move it to potential location
+        addi $a0, $a0, 1           # Add 1 to the x-coordinate to move it to potential location
+        jal get_board_cell
+        bnez $v0, game_loop
+        
+        beq $a2, 1, can_rotate_vert
+        
+        move $a0, $t7
+        move $a1, $t8
+        addi $a1, $a1, -1           # Subtract 1 from the y-coordinate to move it to potential location
+        jal get_board_cell
+        bnez $v0, game_loop         # skip if there is already a block there
+        
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4  
+        jr $ra   
+        
+    can_rotate_vert:
+        sgt $t2, $t7, 4
+        slt $t3, $t7, 15
+        and $t3, $t2, $t3
+        bne $t3, 1, game_loop        # Do not rotate to horz if capsule is vertical in the last column
+        
+        move $a0, $t7
+        move $a1, $t8
+        addi $a0, $a0, 1           # add 1 to the x-coordinate to move it to potential location
+        jal get_board_cell
+        bnez $v0, game_loop        # skip if there is already a block there
+        
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4  
+        jr $ra   
     
 respond_to_P:
     lw $t6, GAME_PAUSED
@@ -1269,10 +1250,6 @@ unpause:
     j key_check              # Allows other keys to be pressed
 
 respond_to_R:
-    # Save return address
-    addi $sp, $sp, -4       # Move stack pointer to make space
-    sw $ra, 0($sp)          # Save $ra (return address) on stack
-
     # Reset capsule position and colors
     lw $t7, COLOR_BLACK     # Load black color
     li $t0, 10              # Default X position for capsule
@@ -1301,7 +1278,7 @@ respond_to_R:
     sw $t0, GAME_PAUSED     # Set game to unpaused
 
     # Clear viruses (assuming viruses are stored in an array)
-    la $t4, viruses         # Load address of viruses array
+    la $t4, viruses_pos         # Load address of viruses array
     sw $zero, 0($t4)        # Clear virus 1
     sw $zero, 4($t4)        # Clear virus 2
     sw $zero, 8($t4)        # Clear virus 3
@@ -1311,14 +1288,8 @@ respond_to_R:
     la $t1, board           # Load address of board
     li $t2, 288             # 288 bytes to clear
 
-clear_board:
-    sw $zero, 0($t1)        # Store 0 at current board position
-    addi $t1, $t1, 4        # Move to the next word (4 bytes)
-    subi $t2, $t2, 4        # Decrement counter
-    bnez $t2, clear_board   # Repeat until all bytes are cleared
-
-
-    jal clear_dspl
+    jal clear_dspl  #clear board was here before
+    jal clear_board
 
     # Sleep for 1 second
     li $a0, 1000            # 1000 milliseconds = 1 second
@@ -1326,29 +1297,23 @@ clear_board:
     syscall
     
     jal init_viruses
-    li $s6, 500
+    li $s6, 520
 
-    # Restore return address and adjust stack pointer
-    lw $ra, 0($sp)          # Restore $ra (return address)
-    addi $sp, $sp, 4        # Adjust stack pointer back
-
-    jr $ra                  # Jump back to the caller (return to the game loop)
-
+    j game_loop
 
 # Helper function to clear the play area
 clear_dspl:                  
     lw   $t6, ADDR_DSPL         # Load base display address
-    li   $t3, 5                 # Start X, set starting x coordinates for drawing
-    li   $t4, 5                 # Start Y, set starting y coordinates for drawing
-    li   $t5, 12                # Number of cols
-    li   $t7, 24                # Number of rows
+    li   $t5, 5                 # Start X, set starting x coordinates for drawing
+    li   $t7, 5                 # Start Y, set starting y coordinates for drawing
     addiu $sp, $sp, -4          # Save $ra before calling another function
     sw    $ra, 0($sp)        
     
     # Offset for X/Y calculation based on the display width
     addi $t6, $t6, 640          # Adjust base address for first row
     addi $t6, $t6, 20           # Additional Y offset for start position
-
+    li $t2, 0                   # Row counter (Y)
+    
 y_loop3:
     li   $t8, 0                 # Column counter (X)
 
@@ -1359,19 +1324,55 @@ x_loop3:
 
     # Clear the pixel (set to zero)
     sw    $zero, 0($t9)         # Store 0 at the computed address
-
+    # move $a0, $t5
+    # move $a1, $t7
+    # li $a2, 0
+    # jal set_board_cell
+    
     addi $t8, $t8, 1            # Next column
-    bne  $t8, $t5, x_loop3      # If not end of row, continue
+    addi $t5, $t5, 1
+    bne  $t8, 12, x_loop3      # If not end of row, continue
 
     # Move to next row (128 bytes per row in the display)
     add   $t6, $t6, 128         # Y offset for next row
-    addi $t2, $t2, 1            # Next row
-    bne  $t2, $t7, y_loop3      # If not 24 rows, continue
+    addi $t2, $t2, 1
+    addi $t7, $t7, 1            # Next row
+    bne  $t2, 24, y_loop3      # If not 24 rows, continue
 
     lw    $ra, 0($sp)           # Restore return address
     addiu $sp, $sp, 4           # Pop stack
     jr   $ra                    # Return
-
+    
+clear_board:
+    addi $sp, $sp, -4        # Move stack pointer to make space
+    sw $ra, 0($sp)           # Save $ra (return address) on stack
+    li   $t0, 24             # Number of rows
+    li   $t1, 12             # Number of columns
+    la   $t2, data_board     # Base address of grid
+    li   $t3, 0       # Row index i
+outer_loop:
+    bge  $t3, $t0, end_board_traversal # if i >= rows, exit
+    li   $t4, 0       # Column index j
+inner_loop:
+    bge  $t4, $t1, next_row  # if j >= cols, go to next row
+    
+    mul  $t5, $t3, $t1  # i * cols
+    add  $t5, $t5, $t4  # i * cols + j
+    mul  $t5, $t5, 4  # (i * cols + j) * 4
+    add  $t5, $t5, $t2  # base + offset
+    sw   $zero, 0($t5)  # Set grid[i][j] = 0
+    
+    addi $t4, $t4, 1    # j++
+    j inner_loop
+    
+next_row:
+    addi $t3, $t3, 1    # i++
+    j outer_loop
+    
+end_board_traversal:
+    lw    $ra, 0($sp)           # Restore return address
+    addiu $sp, $sp, 4           # Pop stack
+    jr   $ra                    # Return
 
 
 #####################################
@@ -1389,7 +1390,7 @@ set_board_cell:
     add $t0, $t0, $a0     # t0 = y * BOARD_WIDTH + x
     sll $t0, $t0, 2       # t2 = x * 4 (x offset)
     
-    la $t1, board
+    la $t1, data_board
     add $t1, $t1, $t0
     sw $a2, 0($t1)
     jr $ra
@@ -1406,7 +1407,7 @@ get_board_cell:
     add $t0, $t0, $a0     # t0 = y * BOARD_WIDTH + x
     sll $t0, $t0, 2       # t2 = x * 4 (x offset)
     
-    la $t1, board
+    la $t1, data_board
     add $t1, $t1, $t0
     lw $v0, 0($t1)
     jr $ra
@@ -1419,27 +1420,27 @@ get_color:
     add $t0, $t0, $t1       # Compute address of COLOR_TABLE[index]
     lw  $v0, 0($t0)         # Load color value
     jr  $ra                 # Return
-
+    
 # Convert hex color codes to color index
 # Parameters: $a3 = RGB color (hex value)
 # Returns: $v0 = color index (or -1 if not found)
 get_index:
     la   $t0, COLOR_TABLE    # Load base address of COLOR_TABLE
-    li   $t2, 0              # Initialize index counter
+    li   $t1, 0              # Initialize index counter
 
 search_loop:
     lw   $t3, 0($t0)         # Load color from table
     beq  $t3, $a3, found     # If match, return index
     addi $t0, $t0, 4         # Move to the next entry
-    addi $t2, $t2, 1         # Increment index
-    bne  $t2, 7, search_loop # Continue loop if not at the end
+    addi $t1, $t1, 1         # Increment index
+    bne  $t1, 7, search_loop # Continue loop if not at the end
 
 not_found:
     li   $v0, -1             # Return -1 if not found
     jr   $ra
 
 found:
-    move $v0, $t2            # Return correct index in $v0
+    move $v0, $t1            # Return correct index in $v0
     jr   $ra                 # Return
 
 
@@ -1500,25 +1501,21 @@ init_virus_loop:
     move $a2, $t3  # virus color (4, 5, or 6)
     jal set_board_cell  # Place the virus
 
-
     mul $t2, $s4, 4         # x (column) * 4 (column offset)
     mul $t3, $s5, 128       # y (row) * 128 (row offset)
     add $t3, $t2, $t3       # total offset
-    lw $t0, ADDR_DSPL       # Load base address of display
-    add $t3, $t3, $t0       # final address = base + offset *****
-    sw $t7, 0($t3)          # draw virus to display
     
-    la $t5, viruses
-    mul $t2, $t9, 4         # $t2 = i * 4 (byte offset for i-th element)
-    add $t2, $t5, $t2       # $t2 = address of viruses[i]
+    lw   $t0, ADDR_DSPL       # Load base address of display
+    add  $t3, $t3, $t0        # final address = base + offset (display memory location)
+    sw   $t7, 0($t3)          # draw virus to display at computed address *****DPSL ADDRESS WHERE VIRUS IS DRAWN 0x10008c24****
+
+    # Store the display memory address into viruses_pos[i]
+    la   $t5, viruses_pos       # Load base address of viruses_pos array
+    mul  $t2, $t9, 4            # Calculate byte offset (i * 4)
+    add  $t2, $t5, $t2          # Compute address of viruses_pos[i]
+    sw   $t3, 0($t2)            # Store display memory address into viruses_pos[i]
+    addi $t9, $t9, 1            # add 1 to virus counter
     
-    
-    
-    # li   $a0, 32                 # ASCII space (' ')
-    # li   $v0, 11                 # Syscall to print character
-    # syscall                      # Print space
-    
-    addi $t9, $t9, 1        # add 1 to virus counter
 skip_virus_place:
     j init_virus_loop
 init_virus_done:
@@ -1535,9 +1532,9 @@ plink_sound:
     sw $ra, 0($sp)          # Save $ra on stack
 
     li $v0, 31     # MIDI Sound Syscall
-    li $a0, 35     # Pitch (Middle C)
-    li $a1, 10   # Duration in ms
-    li $a2, 10      # Instrument (Piano)
+    li $a0, 35     # Pitch
+    li $a1, 10     # Duration in ms
+    li $a2, 10     # Instrument (Piano)
     li $a3, 127    # Volume (Max)
     syscall
     
@@ -1550,9 +1547,9 @@ pause_sound:
     sw $ra, 0($sp)          # Save $ra on stack
 
     li $v0, 31     # MIDI Sound Syscall
-    li $a0, 80     # Pitch (Middle C)
-    li $a1, 10   # Duration in ms
-    li $a2, 80      # Instrument (Piano)
+    li $a0, 80     # Pitch
+    li $a1, 10     # Duration in ms
+    li $a2, 80     # Instrument (Piano)
     li $a3, 127    # Volume (Max)
     syscall
     
@@ -1561,198 +1558,15 @@ pause_sound:
     jr $ra
 
 ####################################
-# Remove Full Lines Routine
-# This function checks each row of the board for four blocks of the same color
-# and removes the row if found. It then drops any unsupported capsules.
+#Draws the game over screen
 ####################################
-
-check_matches:                  # Helper function to draw image given its exact pixel data
-    lw   $t6, ADDR_DSPL         # Load base display address
-    la   $t1, data_board        # Load base address of pixel data
-    li   $t3, 5                 # Start X, set starting x coordinates for drawing
-    li   $t4, 5                 # Start Y, set starting y coordinates for drawing
-    li   $t5, 12                # Number of cols
-    li   $t7, 24                # Number of rows
-    addiu $sp, $sp, -4          # Save $ra before calling another function
-    sw    $ra, 0($sp)        
-
-init_position:
-    mul  $t8, $t4, 128          # Y * row offset
-    mul  $t9, $t3, 4            # X * column offset
-    add  $t8, $t8, $t9          # Compute total offset
-    add  $t0, $t6, $t8          # Compute base address (starting pos)
-
-    # li   $t2, 0                  # Row counter (Y)
-    # li   $a0, 10                # ASCII newline ('\n')
-    # li   $v0, 11                # Syscall for char print
-    # syscall                     # Print newline
-
-y_loop1:
-    li   $t8, 0                 # Column counter (X)
-    # li   $a0, 10                # ASCII newline ('\n')
-    # li   $v0, 11                # Syscall for char print
-    # syscall                     # Print newline
-
-x_loop1:
-    # Compute memory address for display
-    mul  $t9, $t8, 4             # X offset
-    add  $t9, $t0, $t9           # Compute final X address on addr display
-    
-    lw   $a3, 0($t9)             # Load color value from ADDR_DSPL into $a3 ************
-    
-    beqz $a3, check_vert_match
-
-    lw   $s0, 4($t9)  #square to the right of a3
-    lw   $s1, 8($t9)
-    lw   $s2, 12($t9)
-    
-    # Compare colors
-    bne $a3, $s0, check_vert_match
-    bne $s0, $s1, check_vert_match
-    bne $s1, $s2, check_vert_match
-    
-    #If 4 matches in a row, increment score by 5
-    lw $t6, score
-    addi $t6, $t6, 5
-    sw $t6, score
-    
-# Store to display memory (you can adjust this logic if necessary)
-    sw   $zero, 0($t9)       # Store matched color to display
-    sw   $zero, 4($t9)       # Store next color to display
-    sw   $zero, 8($t9)       # Store next color to display
-    sw   $zero, 12($t9)      # Store next color to display
-
-check_vert_match:
-    # Check vertical matches
-    beqz $a3, next_column
-
-    lw   $s0, 128($t9)  #square to the right of a3
-    lw   $s1, 256($t9)
-    lw   $s2, 384($t9)
-    
-    # Compare colors
-    bne $a3, $s0, next_column
-    bne $s0, $s1, next_column
-    bne $s1, $s2, next_column
-    
-    #If 4 matches in a row, increment score by 5
-    lw $t6, score
-    addi $t6, $t6, 5
-    sw $t6, score
-    
-    sw   $zero, 0($t9)       # Store matched color to display
-    sw   $zero, 128($t9)       # Store next color to display
-    sw   $zero, 256($t9)       # Store next color to display
-    sw   $zero, 384($t9)      # Store next color to display
-
-next_column:
-    addi $t1, $t1, 4              # Move to next pixel in sprite data
-    addi $t8, $t8, 1              # Next column
-    bne  $t8, $t5, x_loop1        # If not end of row, continue
-
-    add  $t0, $t0, 128            # Move to the next row (Y offset)
-    addi $t2, $t2, 1              # Next row
-    bne  $t2, $t7, y_loop1        # If not 24 rows, continue
-
-    lw    $ra, 0($sp)             # Restore return address
-    addiu $sp, $sp, 4             # Pop stack
-    jr   $ra                       # Return
-
-####################################
-# Remove Unsupported Blocks Routine
-####################################
-
-check_unsupported:                  # Helper function to draw image given its exact pixel data
-    lw   $t6, ADDR_DSPL         # Load base display address
-    la   $t1, data_board        # Load base address of pixel data
-    li   $t3, 5                 # Start X, set starting x coordinates for drawing
-    li   $t4, 5                 # Start Y, set starting y coordinates for drawing
-    li   $t5, 12                # Number of cols
-    li   $t7, 24                # Number of rows
-    addiu $sp, $sp, -4          # Save $ra before calling another function
-    sw    $ra, 0($sp)        
-
-init_pos:
-    mul  $t8, $t4, 128          # Y * row offset
-    mul  $t9, $t3, 4            # X * column offset
-    add  $t8, $t8, $t9          # Compute total offset
-    add  $t0, $t6, $t8          # Compute base address (starting pos)
-
-    # li   $t2, 0                  # Row counter (Y)
-    # li   $a0, 10                # ASCII newline ('\n')
-    # li   $v0, 11                # Syscall for char print
-    # syscall                     # Print newline
-
-y_loop2:
-    li   $t8, 0                 # Column counter (X)
-    # li   $a0, 10                # ASCII newline ('\n')
-    # li   $v0, 11                # Syscall for char print
-    # syscall                     # Print newline
-
-x_loop2:
-    # Compute memory address for display
-    mul  $t9, $t8, 4             # X offset
-    add  $t9, $t0, $t9           # Compute final X address on addr display
-    
-    lw   $a3, 0($t9)             # Load color value from ADDR_DSPL into $a3 ************
-
-    #Print the raw color value stored in bitmap display  THE BITMAP HEX COLORS ARE CORRECTLY DISPLAYED
-    # move $a0, $a3                # Move color value to $a0 for printing
-    # li   $v0, 1                  # Syscall to print integer
-    # syscall                      # Print the color value
-
-    # li   $a0, 32                 # ASCII space (' ')
-    # li   $v0, 11                 # Syscall to print character
-    # syscall                      # Print space
-
-    beqz $a3, next_column2
-
-    lw   $s0, 128($t9)  #square to the right of a3
-    bnez $s0, next_column2
-    
-    addi $sp, $sp, -4       # Move stack pointer
-    sw $ra, 0($sp)          # Save $ra on stack
-
-    #add stack logic
-    jal respond_to_S
-
-next_column2:
-    addi $t1, $t1, 4              # Move to next pixel in sprite data
-    addi $t8, $t8, 1              # Next column
-    bne  $t8, $t5, x_loop1        # If not end of row, continue
-
-    add  $t0, $t0, 128            # Move to the next row (Y offset)
-    addi $t2, $t2, 1              # Next row
-    bne  $t2, $t7, y_loop1        # If not 24 rows, continue
-
-    lw    $ra, 0($sp)             # Restore return address
-    addiu $sp, $sp, 4             # Pop stack
-    jr   $ra                       # Return
-
-# game_over:
-    # # Load base address of display
-    # lw $t0, ADDR_DSPL
-    # li $t2, 5 #y value 
-    # li $t5, 9 #x values were insterested in
-    # # lw $t6, 10 #^^
-    # # lw $t7, 11 #^^
-
-    # mul $t5, $t5, 4         # x (column) * 4 (column offset)
-    # mul $t3, $t2, 128       # y (row) * 128 (row offset)
-    # add $t4, $t5, $t3       # total offset
-    # add $t4, $t4, $t0       # final address = base + offset
-    
-    # lw $t3, 0($t4) #(9,4)
-    # bnez $t3, exit
-    # lw $t3, 4($t4) #(10,4)
-    # bnez $t3, exit
-    # lw $t3, 8($t4) #(11,4)
-    # bnez $t3, exit
-    
-    # jr $ra
 
 draw_game_over:
+    addiu $sp, $sp, -4        # Push return address onto stack
+    sw    $ra, 0($sp)
+    
     jal clear_dspl
+    jal clear_board
     
     lw   $t6, ADDR_DSPL         # Load base display address
     la   $t1, game_over_pixels   # Load base address of dr mario pixel data
@@ -1761,48 +1575,324 @@ draw_game_over:
     li   $t5, 10                #number of rows
     li   $t7, 10                #number of columns
     
-    addiu $sp, $sp, -4        # Push return address onto stack
-    sw    $ra, 0($sp)
     
-    jal  draw_pixels      # Draw Dr. Mario
-
-    lw    $ra, 0($sp)         # Restore return address
-    addiu $sp, $sp, 4         # Pop stack
-    
-    
+    jal  draw_pixels          # Draw Dr. Mario
+    lw   $t0, ADDR_KBRD               # $t0 = base address for keyboard  
+game_over_loop:
     lw $t6, GAME_PAUSED
-    beq $t6, 0, pause        # Pause if p pressed first time
+    beq $t6, 0, pause_r        # Pause if p pressed first time
     lw $t1, 0($t0)           # If GAME_PAUSED is already 1, load first word from keyboard (key state)
-    beq $t1, 1, check_p      # If key is pressed, send to check_p for exact key
-    j respond_to_P  
-    
+    beq $t1, 1, check_r      # If key is pressed, send to check_p for exact key
+    j game_over_loop  
 check_r:
-    lw $t2, 4($t0)           # Load second word from keyboard into $t2 (actual key pressed)
+    lw $t2, 4($t0)             # Load second word from keyboard into $t2 (actual key pressed)
     lw $t3, KEY_R
-    beq $t2, $t3, unpause    # Unpause if r was pressed, otherwise loop back
-    j respond_to_P           # This prevents any other key from being presßsed while paused
+    beq $t2, $t3, unpause_r # Unpause if r was pressed, otherwise loop back
+    j game_over_loop           # This prevents any other key from being presßsed while paused
 pause_r:
-    jal pause_sound
     addi $t6, $t6, 1
     sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 1  
-    lw $t7, COLOR_WHITE
-    lw $t8, ADDR_DSPL       # Load base address of displayp
-    sw $t7, 260($t8)
-    sw $t7, 132($t8)
-    sw $t7, 268($t8)
-    sw $t7, 140($t8)
-    j respond_to_P
+    j game_over_loop
 unpause_r:
-    jal pause_sound
-    addi $t6, $t6, -1
-    sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 0
-    lw $t7, COLOR_BLACK
-    sw $t7, 260($t8)
-    sw $t7, 132($t8)
-    sw $t7, 268($t8)
-    sw $t7, 140($t8)
-    j key_check              # Allows other keys to be pressed 
+    sw $zero, GAME_PAUSED
+    jal respond_to_R
+
+#####################################
+# CHECK FOR MATCHES
+#####################################
+# check_matches: Draw image given its exact pixel data
+check_matches:
+    addiu $sp, $sp, -4        # Reserve space for $ra
+    sw    $ra, 0($sp)
+
+    lw    $t1, ADDR_DSPL      # Load base address of display
+    addi  $t1, $t1, 660       # Add offset for display (5,5)
+    la    $t0, data_board     # Load base address of board
+
+    li    $t2, 0              # Initialize row counter (Y)
+
+y_loop1:
+    li    $t8, 0              # Column counter (X)
+
+x_loop1:
+    lw    $t3, 0($t1)         # Load pixel color from board
+    beq   $t3, $zero, continue_traversal
+
+    addiu $sp, $sp, -20       # Save 20 bytes on stack
+    sw    $t0, 0($sp)         # Board address
+    sw    $t1, 4($sp)         # Display address
+    sw    $t2, 8($sp)         # Row index
+    sw    $t8, 12($sp)        # Column index
+    sw    $t3, 16($sp)        # Pixel value
+
+    jal   check_horizontal_match
+    jal   check_vertical_match
+
+    lw    $t0, 0($sp)         # Restore board address
+    lw    $t1, 4($sp)         # Restore display address
+    lw    $t2, 8($sp)         # Restore row index
+    lw    $t8, 12($sp)        # Restore column index
+    lw    $t3, 16($sp)        # Restore pixel value
+    addiu $sp, $sp, 20        # Free allocated stack space
+
+continue_traversal:
+    addi  $t0, $t0, 4         # Next pixel in data board
+    addi  $t1, $t1, 4         # Next pixel in bitmap display
+    addi  $t8, $t8, 1         # Next column
+    bne   $t8, 12, x_loop1    # Loop until end of row
+
+    add   $t1, $t1, 80        # Move display pointer to next row
+    addi  $t2, $t2, 1         # Next row
+    bne   $t2, 24, y_loop1    # Loop until 24 rows processed
+
+    lw    $ra, 0($sp)         # Free stack space and return
+    addiu $sp, $sp, 4         
+    jr    $ra                 
+
+check_horizontal_match:
+    addiu $sp, $sp, -4        # Reserve space for this function's $ra
+    sw    $ra, 0($sp)         # Save return address
+
+    # Reload saved values from stack block (offsets are shifted by 4 because of space reserved for $ra)
+    lw    $t3, 20($sp)        # Pixel value from offset 20
+    lw    $t0, 4($sp)         # Board address from offset 4
+    lw    $t8, 16($sp)        # Column index from offset 16
+    li    $t9, 9              # Last valid column index for a match (12 - 3)
+    bge   $t8, $t9, no_horiz_match  # Out of bounds if column >= 9
+
+    # Get next 3 pixel colors from display memory.
+    lw    $t1, 8($sp)         # Display address from offset 8
+    lw    $t4, 4($t1)         # Pixel at (i, j+1)
+    lw    $t5, 8($t1)         # Pixel at (i, j+2)
+    lw    $t6, 12($t1)        # Pixel at (i, j+3)
+
+    beqz  $t3, no_horiz_match           # If current pixel is 0, no match
+    beq   $t3, $t4, check_horiz_2       # Check if pixel 1 and 2 match
+    j     no_horiz_match
+
+check_horiz_2:
+    beq   $t4, $t5, check_horiz_3       # Check if pixel 2 and 3 match
+    j     no_horiz_match
+
+check_horiz_3:
+    beq   $t5, $t6, horiz_match_found   # If pixel 3 and 4 match, horizontal match found
+    j     no_horiz_match
+
+horiz_match_found:
+    lw    $t0, 4($sp)        # Board address
+    lw    $t1, 8($sp)        # Display address
+    # lw    $t9, score
     
-    jr   $ra                  # Return after drawing Mario
+    # Call virus_points for each of the 4 matching pixels
+    lw    $a0, 0($t0)
+    # addi  $t9, $t9, 3         # increment score by 3 for every block that disappears
+    jal   virus_points
+
+    lw    $a0, 4($t0)
+    # addi  $t9, $t9, 3     
+    jal   virus_points
+
+    lw    $a0, 8($t0)
+    # addi  $t9, $t9, 3 
+    jal   virus_points    
+
+    lw    $a0, 12($t0)
+    # addi  $t9, $t9, 3 
+    jal   virus_points
     
+    # sw    $t9, score          # store score
+    # Clear matched blocks in the board
+    sw    $zero, 0($t0)
+    sw    $zero, 4($t0)
+    sw    $zero, 8($t0)
+    sw    $zero, 12($t0)
+
+    # Clear matched blocks in the bitmap display
+    lw    $t3, COLOR_BLACK
+    sw    $t3, 0($t1)
+    sw    $t3, 4($t1)
+    sw    $t3, 8($t1)
+    sw    $t3, 12($t1)
+
+no_horiz_match:
+    lw    $ra, 0($sp)         # Free stack space and return
+    addiu $sp, $sp, 4         
+    jr    $ra 
+
+check_vertical_match:
+    addiu $sp, $sp, -4        # Reserve space for $ra
+    sw    $ra, 0($sp)         
     
+    # Reload saved values from stack block (offsets are shifted by 4 because of space reserved for $ra)
+    lw    $t3, 20($sp)        # Pixel value
+    lw    $t0, 4($sp)         # Board address
+    lw    $t2, 12($sp)        # Row index
+    li    $t8, 21             # Last valid row for vertical check (24 - 3)
+    bge   $t2, $t8, no_vert_match  # Out of bounds if row >= 21
+
+    lw    $t1, 8($sp)         # Display address
+    
+    # Get next 3 pixel colors from display memory
+    lw    $t4, 128($t1)       # Pixel at (i+1, j)
+    lw    $t5, 256($t1)       # Pixel at (i+2, j)
+    lw    $t6, 384($t1)       # Pixel at (i+3, j)
+
+    beqz  $t3, no_vert_match       # If current pixel is 0 (black), no match
+    beq   $t3, $t4, check_vert_2   # Check if pixel 1 and 2 match 
+    j     no_vert_match
+
+check_vert_2:
+    beq   $t4, $t5, check_vert_3        # Check if pixel 2 and 3 match
+    j     no_vert_match
+
+check_vert_3:
+    beq   $t5, $t6, vert_match_found    # If pixel 3 and 4 match, vertical match found
+    j     no_vert_match
+
+vert_match_found:
+    lw    $t0, 4($sp)         # Board address
+    lw    $t1, 8($sp)         # Display address
+
+    # Call virus_points for each of the 4 matching pixels
+    lw    $a0, 0($t0)
+    # addi  $t9, $t9, 3         # Increment score by 3 for every block that disappears
+    jal   virus_points
+
+    lw    $a0, 48($t0)
+    addi  $t9, $t9, 3
+    jal   virus_points
+
+    lw    $a0, 96($t0)
+    # addi  $t9, $t9, 3
+    jal   virus_points    
+
+    lw    $a0, 144($t0)
+    # addi  $t9, $t9, 3
+    jal   virus_points
+    
+    # Clear matched blocks in the board
+    sw    $zero, 0($t0)
+    sw    $zero, 48($t0)
+    sw    $zero, 96($t0)
+    sw    $zero, 144($t0)
+
+    # Clear matched blocks in the bitmap display
+    lw    $t3, COLOR_BLACK
+    sw    $t3, 0($t1)
+    sw    $t3, 128($t1)
+    sw    $t3, 256($t1)
+    sw    $t3, 384($t1)
+
+no_vert_match:
+    lw    $ra, 0($sp)         # Free stack space and return
+    addiu $sp, $sp, 4         
+    jr    $ra                 
+
+
+virus_points:
+    addiu $sp, $sp, -4
+    sw    $ra, 0($sp)         # Save return address
+
+    blt   $a0, 4, not_virus   # If $a0 < 4, not a virus
+    bgt   $a0, 6, not_virus   # If $a0 > 6, not a virus
+    lw    $t9, score
+    addi  $t9, $t9, 10         # Increment score by 5 for every virus disappears
+    sw    $t9, score           # Store score
+    
+    lw    $t9, viruses_left    # Decrease the number of viruses
+    subi  $t9, $t9, 1
+    beqz  $t9, respond_to_Q    # Quit game if number of viruses is 0, user wins game
+    sw    $t9, viruses_left
+
+not_virus:
+    lw    $ra, 0($sp)      
+    addiu $sp, $sp, 4       
+    jr   $ra    
+
+
+#####################################
+# DROP CAPSULES
+#####################################
+
+drop_capsules:                  
+    lw   $t6, ADDR_DSPL             # Load base display address
+    li   $t5, 15                    # Start X coordinate
+    li   $t7, 27                    # Start Y coordinate
+    addiu $sp, $sp, -4              # Save $ra before calling another function
+    sw    $ra, 0($sp)        
+
+    # Offset for X/Y calculation based on the display width
+    addi $t6, $t6, 3464             # Adjust base address for first row
+    addi $t6, $t6, 12               # Additional Y offset for start position
+    li   $t2, 22                    # Row counter (Y)
+    
+y_loop4:
+    li   $t8, 11                    # Start X at 12 (adjusted for decrementing loop)
+
+x_loop4:
+    # Compute memory address for display (row offset already in $t6)
+    mul  $t9, $t8, 4                # X offset, each column is 4 bytes (word size)
+    add  $t9, $t9, $t6              # Add X offset to base address
+    
+    #Check if the current pixel is a virus, if yes then skip
+    la $t4, viruses_pos
+    
+    lw   $t3, 0($t4)   # Load the value at address ($t4) into $t3
+    beq  $t9, $t3, skip_drop  # Compare $t9 with the loaded value, branch if equal
+
+    lw   $t3, 4($t4)   # Load the value at address ($t4 + 4) into $t3
+    beq  $t9, $t3, skip_drop  
+
+    lw   $t3, 8($t4)   # Load the value at address ($t4 + 8) into $t3
+    beq  $t9, $t3, skip_drop  
+
+    lw   $t3, 12($t4)  # Load the value at address ($t4 + 12) into $t3
+    beq  $t9, $t3, skip_drop  
+    
+    #If the square below is not black (i.e its occupied), dont drop
+    lw $t4, 128($t9)
+    bnez $t4, skip_drop
+
+single_capsule:
+    # Clear the pixel (set to zero)
+    lw $t1, 4($t9)
+    lw $t3, -4($t9)
+    add $t3, $t1, $t3 #if both left and right are 0, we 
+    beqz $t3, drop_loop
+    
+    # li $t4, 0xFFFFFF
+    # sw   $t3, 0($t9)                # Store 0 at the computed address
+
+skip_drop:
+    addi $t8, $t8, -1               # Move to the next column (left)
+    addi $t5, $t5, -1               # Adjust logical X position
+    bge  $t8, 0, x_loop4            # Continue if X >= 0
+    
+    # Move to next row (128 bytes per row in the display)
+    add   $t6, $t6, -128            # Move to next row in memory
+    addi  $t2, $t2, -1              # Increment row counter
+    addi  $t7, $t7, -1              # Adjust logical Y position
+    beq $t7, 4, finish
+    blt   $t2, 24, y_loop4          # If not 24 rows, continue ****
+
+drop_loop:
+    move $t4, $t8 #move the current y coordinate into t4
+    lw $t4, 128($t9)                # Check the square below
+    bnez $t4, skip_drop             # If occupied, stop dropping
+    
+    # Move the capsule down
+    lw   $t0, 0($t9)                # Load the current capsule
+    sw   $t0, 128($t9)              # Move it 1 row down, loop counter
+    li   $t5, 0                     # Clear the original position
+    sw   $t5, 0($t9)                # Set original to empty
+
+    add   $t9, $t9, 128             # Move down by 1 row
+    
+    # jal respond_to_S   #call the gravity function
+    j drop_loop
+
+finish:
+    lw   $ra, 0($sp)                # Restore return address
+    addiu $sp, $sp, 4               # Pop stack
+    jr   $ra                        # Return
+
