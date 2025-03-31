@@ -1041,7 +1041,7 @@ redraw_capsules:
     li $s6, 520
     
     jal check_matches
-    jal drop_capsules
+    # jal drop_capsules
     j game_loop                 # Continue game loop
     
     save_top_cell_vert:
@@ -1070,7 +1070,7 @@ redraw_capsules:
         
         sw $zero, capsule_orient 
         jal check_matches
-        jal drop_capsules
+        # jal drop_capsules
         j game_loop              # Continue game loop
     
 respond_to_D:
@@ -1839,10 +1839,10 @@ x_loop4:
     lw $t4, 128($t9)
     bnez $t4, skip_drop
     
-    # li $t3, 11
-    # li $t4, 0
-    # beq $t8, $t3, right_border
-    # beq $t8, $t4, left_border
+    li $t3, 11
+    li $t4, 0
+    beq $t8, $t3, right_border
+    beq $t8, $t4, left_border
     
 single_capsule:
     lw $t1, 4($t9)
