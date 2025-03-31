@@ -229,7 +229,8 @@ data_board: # Pixel representation of the viruses
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
-viruses: # These store the display positions of the viruses, to align them with data_board, offset by -5.
+
+viruses_pos: # These store the display positions of the viruses, to align them with data_board, offset by -5.
   .word 0, 0, 0, 0
 
 game_over_pixels:
@@ -254,6 +255,7 @@ main:
     #implement gravity, capsule goes down 1 block per second
     li $t1, 0
     li $s6, 520 # 1000 ms = 1 second
+    
     jal draw_bottle
     jal init_viruses
     jal draw_dr_mario
@@ -929,11 +931,9 @@ respond_to_S: #move capsule down when S is pressed
     #game over logic
     bne $t1, 5, continue_S
     lw $t0, ADDR_DSPL       # Load base address of display
-    # jal calculate_offset    #t4 gives back the final offset
     addi $a1, $t1, 1
     move $a0, $t6
     jal get_board_cell
-    # lw $t2, 128($t4)        #get the square right below current, if occupied, exit
     bne $v0, 0, exit        #game over logic
     
     
@@ -1044,6 +1044,7 @@ redraw_capsules:
     li $s6, 520
     
     jal check_matches
+    jal drop_capsules
     j game_loop              # Continue game loop
     
     save_top_cell_vert:
@@ -1070,8 +1071,9 @@ redraw_capsules:
         
         li $s6, 520
         
+        sw $zero, capsule_orient 
         jal check_matches
-        sw $zero, capsule_orient
+        jal drop_capsules
         j game_loop              # Continue game loop
     
 respond_to_D:
@@ -1270,7 +1272,7 @@ respond_to_R:
     sw $t0, GAME_PAUSED     # Set game to unpaused
 
     # Clear viruses (assuming viruses are stored in an array)
-    la $t4, viruses         # Load address of viruses array
+    la $t4, viruses_pos         # Load address of viruses array
     sw $zero, 0($t4)        # Clear virus 1
     sw $zero, 4($t4)        # Clear virus 2
     sw $zero, 8($t4)        # Clear virus 3
@@ -1496,19 +1498,18 @@ init_virus_loop:
     mul $t2, $s4, 4         # x (column) * 4 (column offset)
     mul $t3, $s5, 128       # y (row) * 128 (row offset)
     add $t3, $t2, $t3       # total offset
-    lw $t0, ADDR_DSPL       # Load base address of display
-    add $t3, $t3, $t0       # final address = base + offset *****
-    sw $t7, 0($t3)          # draw virus to display
     
-    la $t5, viruses
-    mul $t2, $t9, 4         # $t2 = i * 4 (byte offset for i-th element)
-    add $t2, $t5, $t2       # $t2 = address of viruses[i]
+    lw   $t0, ADDR_DSPL       # Load base address of display
+    add  $t3, $t3, $t0        # final address = base + offset (display memory location)
+    sw   $t7, 0($t3)          # draw virus to display at computed address *****DPSL ADDRESS WHERE VIRUS IS DRAWN 0x10008c24****
+
+    # Store the display memory address into viruses_pos[i]
+    la   $t5, viruses_pos       # Load base address of viruses_pos array
+    mul  $t2, $t9, 4            # Calculate byte offset (i * 4)
+    add  $t2, $t5, $t2          # Compute address of viruses_pos[i]
+    sw   $t3, 0($t2)            # Store display memory address into viruses_pos[i]
+    addi $t9, $t9, 1            # add 1 to virus counter
     
-    # li   $a0, 32                 # ASCII space (' ')
-    # li   $v0, 11                 # Syscall to print character
-    # syscall                      # Print space
-    
-    addi $t9, $t9, 1        # add 1 to virus counter
 skip_virus_place:
     j init_virus_loop
 init_virus_done:
@@ -1552,7 +1553,7 @@ pause_sound:
     
 
 ####################################
-# GAME OVER
+# Draws the game over screen
 ####################################
 draw_game_over:
     addiu $sp, $sp, -4        # Push return address onto stack
@@ -1568,29 +1569,32 @@ draw_game_over:
     li   $t5, 10                #number of rows
     li   $t7, 10                #number of columns
     
-    
     jal  draw_pixels          # Draw Dr. Mario
     lw   $t0, ADDR_KBRD               # $t0 = base address for keyboard  
-game_over_loop:
-    lw $t6, GAME_PAUSED
-    beq $t6, 0, pause_r        # Pause if p pressed first time
-    lw $t1, 0($t0)           # If GAME_PAUSED is already 1, load first word from keyboard (key state)
-    beq $t1, 1, check_r      # If key is pressed, send to check_p for exact key
-    j game_over_loop  
-check_r:
-    lw $t2, 4($t0)             # Load second word from keyboard into $t2 (actual key pressed)
-    lw $t3, KEY_R
-    lw $t7, KEY_Q
-    beq $t2, $t7, respond_to_Q # Quit if q was pressed, otherwise loop back
-    beq $t2, $t3, unpause_r    # Unpause if r was pressed, otherwise loop back
-    j game_over_loop           # This prevents any other key from being presßsed while paused
-pause_r:
-    addi $t6, $t6, 1
-    sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 1  
-    j game_over_loop
-unpause_r:
-    sw $zero, GAME_PAUSED
-    jal respond_to_R
+    
+    game_over_loop:
+        lw $t6, GAME_PAUSED
+        beq $t6, 0, pause_r        # Pause if p pressed first time
+        lw $t1, 0($t0)           # If GAME_PAUSED is already 1, load first word from keyboard (key state)
+        beq $t1, 1, check_r      # If key is pressed, send to check_p for exact key
+        j game_over_loop  
+        
+    check_r:
+        lw $t2, 4($t0)             # Load second word from keyboard into $t2 (actual key pressed)
+        lw $t3, KEY_R
+        lw $t7, KEY_Q
+        beq $t2, $t7, respond_to_Q # Quit if q was pressed, otherwise loop back
+        beq $t2, $t3, unpause_r    # Unpause if r was pressed, otherwise loop back
+        j game_over_loop           # This prevents any other key from being pressed while paused
+        
+    pause_r:
+        addi $t6, $t6, 1
+        sw $t6, GAME_PAUSED      # Update GAME_PAUSED to 1  
+        j game_over_loop
+        
+    unpause_r:
+        sw $zero, GAME_PAUSED
+        jal respond_to_R
 
 #####################################
 # CHECK FOR MATCHES
@@ -1680,22 +1684,17 @@ horiz_match_found:
     
     # Call virus_points for each of the 4 matching pixels
     lw    $a0, 0($t0)
-    # addi  $t9, $t9, 3         # increment score by 3 for every block that disappears
     jal   virus_points
 
     lw    $a0, 4($t0)
-    # addi  $t9, $t9, 3     
     jal   virus_points
 
     lw    $a0, 8($t0)
-    # addi  $t9, $t9, 3 
     jal   virus_points    
 
-    lw    $a0, 12($t0)
-    # addi  $t9, $t9, 3 
+    lw    $a0, 12($t0) 
     jal   virus_points
     
-    # sw    $t9, score          # store score
     # Clear matched blocks in the board
     sw    $zero, 0($t0)
     sw    $zero, 4($t0)
@@ -1750,7 +1749,6 @@ vert_match_found:
 
     # Call virus_points for each of the 4 matching pixels
     lw    $a0, 0($t0)
-    # addi  $t9, $t9, 3         # Increment score by 3 for every block that disappears
     jal   virus_points
 
     lw    $a0, 48($t0)
@@ -1758,11 +1756,9 @@ vert_match_found:
     jal   virus_points
 
     lw    $a0, 96($t0)
-    # addi  $t9, $t9, 3
     jal   virus_points    
 
     lw    $a0, 144($t0)
-    # addi  $t9, $t9, 3
     jal   virus_points
     
     # Clear matched blocks in the board
@@ -1791,7 +1787,8 @@ virus_points:
     blt   $a0, 4, not_virus   # If $a0 < 4, not a virus
     bgt   $a0, 6, not_virus   # If $a0 > 6, not a virus
     lw    $t9, score
-    addi  $t9, $t9, 15         # Increment score by 5 for every virus disappears
+
+    addi  $t9, $t9, 10         # Increment score by 5 for every virus disappears
     sw    $t9, score           # Store score
     
     lw    $t9, viruses_left    # Decrease the number of viruses
@@ -1802,4 +1799,117 @@ virus_points:
 not_virus:
     lw    $ra, 0($sp)      
     addiu $sp, $sp, 4       
-    jr   $ra              
+    jr   $ra    
+
+
+#####################################
+# DROP CAPSULES
+#####################################
+
+drop_capsules:                  
+    lw   $t6, ADDR_DSPL             # Load base display address
+    li   $t5, 15                    # Start X coordinate
+    li   $t7, 27                    # Start Y coordinate
+    addiu $sp, $sp, -4              # Save $ra before calling another function
+    sw    $ra, 0($sp)        
+
+    # Offset for X/Y calculation based on the display width
+    addi $t6, $t6, 3464             # Adjust base address for first row
+    addi $t6, $t6, 12               # Additional Y offset for start position
+    li   $t2, 22                    # Row counter (Y), start Y at 22
+    
+y_loop4:
+    li   $t8, 11                    # Column counter (X), start X at 12
+
+x_loop4:
+    # Compute memory address for display (row offset already in $t6)
+    mul  $t9, $t8, 4                # X offset, each column is 4 bytes
+    add  $t9, $t9, $t6              # Add X offset to base address
+    
+    # Check if the current pixel is a virus, if yes then skip
+    la $t4, viruses_pos
+    
+    lw   $t3, 0($t4)   # Load the value at address ($t4) into $t3
+    beq  $t9, $t3, skip_drop  # Compare $t9 with the loaded value, skip if equal
+
+    lw   $t3, 4($t4)   # Load the value at address ($t4 + 4) into $t3
+    beq  $t9, $t3, skip_drop  
+
+    lw   $t3, 8($t4)   # Load the value at address ($t4 + 8) into $t3
+    beq  $t9, $t3, skip_drop  
+
+    lw   $t3, 12($t4)  # Load the value at address ($t4 + 12) into $t3
+    beq  $t9, $t3, skip_drop  
+    
+    # If the square itself is black or the square below is not black (i.e its occupied), dont drop
+    lw $t4, 0($t9)
+    beqz $t4, skip_drop
+    lw $t4, 128($t9)
+    bnez $t4, skip_drop
+
+single_capsule:
+    lw $t1, 4($t9)
+    lw $t3, -4($t9)
+    add $t3, $t1, $t3           # If both left and right are 0, we drop
+    beqz $t3, drop_loop_start
+    
+skip_drop:
+    addi $t8, $t8, -1               # Move to the next column (left)
+    addi $t5, $t5, -1               # Adjust logical X position
+    bge  $t8, 0, x_loop4            # Continue if X >= 0
+    
+    # Move to next row (128 bytes per row in the display)
+    add   $t6, $t6, -128            # Move to next row in memory
+    addi  $t2, $t2, -1              # Increment row counter
+    addi  $t7, $t7, -1              # Adjust logical Y position
+    beq $t7, 4, finish
+    blt   $t2, 24, y_loop4          # If not 24 rows, continue ****
+
+
+drop_loop_start:
+    addiu $sp, $sp, -8        # Make room for 2 words on the stack
+    sw    $t5, 0($sp)         # Save so we can use these regs as temp storage in the loop
+    sw    $t7, 4($sp)       
+    
+    move $t5, $t2             #move the current y coordinate into t5
+    move $t7, $t8             #move the current x coordinate into t7
+    addi $t5, $t5, 5
+    addi $t7, $t7, 5
+    
+drop_loop:
+    lw $t4, 128($t9)                # Check the square below
+    bnez $t4, reset_skip_drop       # If occupied, stop dropping
+
+    lw   $t0, 0($t9)                # Load the current capsule
+    sw   $t0, 128($t9)              # Move it 1 row down, loop counter
+    addi $t5, $t5, 1                # increase row count
+    move $a3, $t0
+    jal get_index                   # Get the colour index of the colour at t0
+    move $a2, $v0 
+    move $a0, $t7
+    move $a1, $t5
+    jal set_board_cell              # Set the new location in the board
+    
+    lw   $t0, 0($t9)                # Load the current capsule
+    sw   $zero, 0($t9)              # Set original to empty
+    move $a0, $t7
+    move $a1, $t5
+    li $a2, 0
+    jal set_board_cell              # Wipe the old location from the board
+     
+
+    add   $t9, $t9, 128             # Move bitmap address down by 1 row
+
+    j drop_loop
+    
+reset_skip_drop:
+    # Restore registers
+    lw    $t5, 0($sp)
+    lw    $t7, 4($sp)
+    addiu $sp, $sp, 8
+    j     skip_drop                # Now call skip_drop to stop dropping
+    
+finish:
+    lw   $ra, 0($sp)                # Restore return address
+    addiu $sp, $sp, 4               # Pop stack
+    jr   $ra                        # Return
