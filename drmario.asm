@@ -1041,7 +1041,7 @@ redraw_capsules:
     li $s6, 520
     
     jal check_matches
-    # jal drop_capsules
+    jal drop_capsules
     j game_loop                 # Continue game loop
     
     save_top_cell_vert:
@@ -1070,7 +1070,7 @@ redraw_capsules:
         
         sw $zero, capsule_orient 
         jal check_matches
-        # jal drop_capsules
+        jal drop_capsules
         j game_loop              # Continue game loop
     
 respond_to_D:
