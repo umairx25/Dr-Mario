@@ -64,12 +64,10 @@ GAME_PAUSED:    .word 0       # 1 = paused, 0 = not paused
 KEY_A:          .word 0x61    # move left
 KEY_S:          .word 0x73    # move down
 KEY_D:          .word 0x64    # move right
-KEY_X:          .word 0x78    # rotate right
-KEY_Z:          .word 0x7A    # rotate left
-KEY_W:          .word 0x77    # general rotate
+KEY_W:          .word 0x77    # rotate right
 KEY_Q:          .word 0x71    # quit
 KEY_P:          .word 0x70    # pause
-KEY_R:          .word 0x72
+KEY_R:          .word 0x72    # reset game
 
 ##############################################################################
 # Mutable Data  start from 1     #spawn new pills at 22,5
@@ -256,16 +254,12 @@ main:
     #implement gravity, capsule goes down 1 block per second
     li $t1, 0
     li $s6, 520 # 1000 ms = 1 second
-    # la $t6, game_over_pixels
-    # jal draw_game_over #testing
     jal draw_bottle
     jal init_viruses
     jal draw_dr_mario
     jal draw_viruses # On the side panel
-    # jal draw_game_over #testing
-
+    
 game_loop:
-    #check time w syscall 30
     jal draw_number
     jal draw_curr
     jal key_check
@@ -1555,130 +1549,11 @@ pause_sound:
     lw $ra, 0($sp)    
     addi $sp, $sp, 4  
     jr $ra
-
-####################################
-# Remove Full Lines Routine
-# This function checks each row of the board for four blocks of the same color
-# and removes the row if found. It then drops any unsupported capsules.
-####################################
-
-# check_matches:                  # Helper function to draw image given its exact pixel data
-    # lw   $t6, ADDR_DSPL         # Load base display address
-    # la   $t1, data_board        # Load base address of pixel data
-    # li   $t3, 5                 # Start X, set starting x coordinates for drawing
-    # li   $t4, 5                 # Start Y, set starting y coordinates for drawing
-    # li   $t5, 12                # Number of cols
-    # li   $t7, 24                # Number of rows
-    # addiu $sp, $sp, -4          # Save $ra before calling another function
-    # sw    $ra, 0($sp)        
-
-# init_position:
-    # mul  $t8, $t4, 128          # Y * row offset
-    # mul  $t9, $t3, 4            # X * column offset
-    # add  $t8, $t8, $t9          # Compute total offset
-    # add  $t0, $t6, $t8          # Compute base address (starting pos)
-
-    # # li   $t2, 0                  # Row counter (Y)
-    # # li   $a0, 10                # ASCII newline ('\n')
-    # # li   $v0, 11                # Syscall for char print
-    # # syscall                     # Print newline
-
-# y_loop1:
-    # li   $t8, 0                 # Column counter (X)
-    # # li   $a0, 10                # ASCII newline ('\n')
-    # # li   $v0, 11                # Syscall for char print
-    # # syscall                     # Print newline
-
-# x_loop1:
-    # # Compute memory address for display
-    # mul  $t9, $t8, 4             # X offset
-    # add  $t9, $t0, $t9           # Compute final X address on addr display
     
-    # lw   $a3, 0($t9)             # Load color value from ADDR_DSPL into $a3 ************
-    
-    # beqz $a3, check_vert_match
-
-    # lw   $s0, 4($t9)  #square to the right of a3
-    # lw   $s1, 8($t9)
-    # lw   $s2, 12($t9)
-    
-    # # Compare colors
-    # bne $a3, $s0, check_vert_match
-    # bne $s0, $s1, check_vert_match
-    # bne $s1, $s2, check_vert_match
-    
-    # #If 4 matches in a row, increment score by 5
-    # lw $t6, score
-    # addi $t6, $t6, 5
-    # sw $t6, score
-    
-# # Store to display memory (you can adjust this logic if necessary)
-    # sw   $zero, 0($t9)       # Store matched color to display
-    # sw   $zero, 4($t9)       # Store next color to display
-    # sw   $zero, 8($t9)       # Store next color to display
-    # sw   $zero, 12($t9)      # Store next color to display
-
-# check_vert_match:
-    # # Check vertical matches
-    # beqz $a3, next_column
-
-    # lw   $s0, 128($t9)  #square to the right of a3
-    # lw   $s1, 256($t9)
-    # lw   $s2, 384($t9)
-    
-    # # Compare colors
-    # bne $a3, $s0, next_column
-    # bne $s0, $s1, next_column
-    # bne $s1, $s2, next_column
-    
-    # #If 4 matches in a row, increment score by 5
-    # lw $t6, score
-    # addi $t6, $t6, 5
-    # sw $t6, score
-    
-    # sw   $zero, 0($t9)       # Store matched color to display
-    # sw   $zero, 128($t9)       # Store next color to display
-    # sw   $zero, 256($t9)       # Store next color to display
-    # sw   $zero, 384($t9)      # Store next color to display
-
-# next_column:
-    # addi $t1, $t1, 4              # Move to next pixel in sprite data
-    # addi $t8, $t8, 1              # Next column
-    # bne  $t8, $t5, x_loop1        # If not end of row, continue
-
-    # add  $t0, $t0, 128            # Move to the next row (Y offset)
-    # addi $t2, $t2, 1              # Next row
-    # bne  $t2, $t7, y_loop1        # If not 24 rows, continue
-
-    # lw    $ra, 0($sp)             # Restore return address
-    # addiu $sp, $sp, 4             # Pop stack
-    # jr   $ra                       # Return
 
 ####################################
 # GAME OVER
 ####################################
-# game_over:
-    # # Load base address of display
-    # lw $t0, ADDR_DSPL
-    # li $t2, 5 #y value 
-    # li $t5, 9 #x values were insterested in
-    # # lw $t6, 10 #^^
-    # # lw $t7, 11 #^^
-
-    # mul $t5, $t5, 4         # x (column) * 4 (column offset)
-    # mul $t3, $t2, 128       # y (row) * 128 (row offset)
-    # add $t4, $t5, $t3       # total offset
-    # add $t4, $t4, $t0       # final address = base + offset
-    
-    # lw $t3, 0($t4) #(9,4)
-    # bnez $t3, exit
-    # lw $t3, 4($t4) #(10,4)
-    # bnez $t3, exit
-    # lw $t3, 8($t4) #(11,4)
-    # bnez $t3, exit
-    
-    # jr $ra
-
 draw_game_over:
     addiu $sp, $sp, -4        # Push return address onto stack
     sw    $ra, 0($sp)
@@ -1705,7 +1580,9 @@ game_over_loop:
 check_r:
     lw $t2, 4($t0)             # Load second word from keyboard into $t2 (actual key pressed)
     lw $t3, KEY_R
-    beq $t2, $t3, unpause_r # Unpause if r was pressed, otherwise loop back
+    lw $t7, KEY_Q
+    beq $t2, $t7, respond_to_Q # Quit if q was pressed, otherwise loop back
+    beq $t2, $t3, unpause_r    # Unpause if r was pressed, otherwise loop back
     j game_over_loop           # This prevents any other key from being presßsed while paused
 pause_r:
     addi $t6, $t6, 1
