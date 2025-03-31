@@ -1814,7 +1814,7 @@ not_virus:
 # DROP CAPSULES
 #####################################
 
-drop_capsules:                  
+drop_capsules:
     lw   $t6, ADDR_DSPL             # Load base display address
     li   $t5, 15                    # Start X coordinate
     li   $t7, 27                    # Start Y coordinate
@@ -1852,11 +1852,17 @@ x_loop4:
     #If the square below is not black (i.e its occupied), dont drop
     lw $t4, 128($t9)
     bnez $t4, skip_drop
-
+    
+    li $t3, 11
+    li $t4, 0
+    beq $t8, $t3, right_border
+    beq $t8, $t4, left_border
+    
 single_capsule:
     # Clear the pixel (set to zero)
     lw $t1, 4($t9)
     lw $t3, -4($t9)
+    
     add $t3, $t1, $t3 #if both left and right are 0, we 
     beqz $t3, drop_loop
     
@@ -1895,4 +1901,56 @@ finish:
     lw   $ra, 0($sp)                # Restore return address
     addiu $sp, $sp, 4               # Pop stack
     jr   $ra                        # Return
+
+
+#If we're at the left border
+# left_border:
+    # # Clear the pixel (set to zero)
+    # lw $t1, 4($t9)
+    # # lw $t3, -4($t9)
+    # # add $t3, $t1, $t3 #if both left and right are 0, we 
+    # beqz $t1, drop_loop
+    
+    # j skip_drop
+    
+    # # li $t4, 0xFFFFFF
+    # # sw   $t3, 0($t9)                # Store 0 at the computed address
+
+# #If we're at the right border
+# right_border:
+    # # Clear the pixel (set to zero)
+    # # lw $t1, 4($t9)
+    # lw $t3, -4($t9)
+    # # add $t3, $t1, $t3 #if both left and right are 0, we 
+    # beqz $t3, drop_loop
+    
+    # j skip_drop
+    
+    # # li $t4, 0xFFFFFF
+    # # sw   $t3, 0($t9)                # Store 0 at the computed address
+
+left_border:
+    # Draw white for debug visualization
+    # li  $t1, 0xFFFFFF              # White color
+    # sw  $t1, 0($t9)                # Draw white pixel at left border
+    
+    # Clear the pixel (set to zero)
+    lw $t1, 4($t9)                 # Check right neighbor
+    beqz $t1, drop_loop            # If no right neighbor, allow drop
+    
+    j skip_drop                    # Otherwise skip drop
+    
+# Right border handling with debug visualization
+right_border:
+    # Draw white for debug visualization
+    # li  $t1, 0xFFFFFF              # White color
+    # sw  $t1, 0($t9)                # Draw white pixel at right border
+    
+    # Clear the pixel (set to zero)
+    lw $t3, -4($t9)                # Check left neighbor
+    beqz $t3, drop_loop            # If no left neighbor, allow drop
+    
+    j skip_drop                    # Otherwise skip drop
+    
+
 
