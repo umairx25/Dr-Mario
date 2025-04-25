@@ -1,8 +1,8 @@
 ################# CSC258 Assembly Final Project ###################
 # This file contains our implementation of Dr Mario.
 #
-# Student 1: Umair Arham, 1010246565
-# Student 2: Sameer Shahed, 1010313876 
+# Student 1: Umair Arham, [REDACTED]
+# Student 2: Sameer Shahed, [REDACTED]
 #
 # We assert that the code submitted here is entirely our own 
 # creation, and will indicate otherwise when it is not.
@@ -1423,7 +1423,7 @@ search_loop:
     bne  $t1, 7, search_loop # Continue loop if not at the end
 
 not_found:
-    li   $v0, -1             # Return -1 if not found
+    li   $v0, 0             # Return -1 if not found
     jr   $ra
 
 found:
@@ -1544,6 +1544,36 @@ pause_sound:
     addi $sp, $sp, 4  
     jr $ra
     
+
+win_sound:
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+
+    li $v0, 31              # MIDI Sound Syscall
+    li $a0, 80              # Pitch
+    li $a1, 50              # Duration in ms
+    li $a2, 126              # Instrument (Piano)
+    li $a3, 127             # Volume (Max)
+    syscall
+    
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
+
+lose_sound:
+    addi $sp, $sp, -4       # Move stack pointer
+    sw $ra, 0($sp)          # Save $ra on stack
+
+    li $v0, 31              # MIDI Sound Syscall
+    li $a0, 80              # Pitch
+    li $a1, 50              # Duration in ms
+    li $a2, 126              # Instrument (Piano)
+    li $a3, 127             # Volume (Max)
+    syscall
+    
+    lw $ra, 0($sp)    
+    addi $sp, $sp, 4  
+    jr $ra
 
 ####################################
 # Draws the game over screen
@@ -1799,12 +1829,12 @@ not_virus:
 #####################################
 
 drop_capsules:
+    addiu $sp, $sp, -4              # Save $ra
+    sw    $ra, 0($sp)        
+
     lw   $t6, ADDR_DSPL             # Load base display address
     li   $t5, 15                    # Start X coordinate
     li   $t7, 27                    # Start Y coordinate
-    addiu $sp, $sp, -4              # Save $ra before calling another function
-    sw    $ra, 0($sp)        
-
     # Offset for X/Y calculation based on the display width
     addi $t6, $t6, 3464             # Adjust base address for first row
     addi $t6, $t6, 12               # Additional Y offset for start position
@@ -1869,9 +1899,9 @@ drop_loop_start:
     sw    $t7, 4($sp)  
     sw    $t3, 8($sp)
     
-    move $t5, $t2             #move the current y coordinate into t5
     move $t7, $t8             #move the current x coordinate into t7
-    addi $t5, $t5, 5
+    move $t5, $t2             #move the current y coordinate into t5
+    addi $t5, $t5, 5     
     addi $t7, $t7, 5
     
 drop_loop:
@@ -1888,6 +1918,7 @@ drop_loop:
     jal set_board_cell              # Wipe the old location from the board
     
     sw   $t3, 128($t9)              # Move it 1 row down, loop counter
+    # sw   $t0, 128($t9)              # Move it 1 row down, loop counter
     addi $t5, $t5, 1                # increase row count
     move $a3, $t3
     jal get_index                   # Get the colour index of the colour at t0
@@ -1929,4 +1960,6 @@ right_border:
     beqz $t3, drop_loop            # If no left neighbor, allow drop
     
     j skip_drop                    # Otherwise skip drop
+
+
 
